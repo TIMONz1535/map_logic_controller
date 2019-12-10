@@ -83,12 +83,12 @@ function ENT:Initialize()
 	self:CacheEntNames()
 	MAP_CONTROLLER_FUNC = Stack()
 
-	include("office_elevator.lua")
-	include("med_elevator.lua")
-	include("city_elevator.lua")
-	include("metropol_elevator.lua")
-	include("beach_elevator.lua")
-	include("rebel_elevator.lua")
+	include("entities/map_logic_controller/office_elevator.lua")
+	include("entities/map_logic_controller/med_elevator.lua")
+	include("entities/map_logic_controller/city_elevator.lua")
+	include("entities/map_logic_controller/metropol_elevator.lua")
+	include("entities/map_logic_controller/beach_elevator.lua")
+	include("entities/map_logic_controller/rebel_elevator.lua")
 
 	for _, func in ipairs(MAP_CONTROLLER_FUNC) do
 		func(self)
@@ -96,8 +96,3 @@ function ENT:Initialize()
 	MAP_CONTROLLER_FUNC = nil
 	self.cache = nil
 end
-
--- ====================================================================================================
-
--- local man = ents.Create("map_logic_controller")
--- man:Spawn()
