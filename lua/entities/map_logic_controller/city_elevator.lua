@@ -3,20 +3,19 @@
 MAP_CONTROLLER_FUNC:Push(
 	function(self)
 		local buttonDelay = 3
-		local elevator = self:GetMetaTarget("office_elevator")
-		local path1 = self:GetMetaTarget("office_elevator_path1")
-		local path2 = self:GetMetaTarget("office_elevator_path2")
-		local path3 = self:GetMetaTarget("office_elevator_path3")
-		local button1 = self:GetMetaTarget("office_elevator_button1")
-		local button2 = self:GetMetaTarget("office_elevator_button2")
-		local button3 = self:GetMetaTarget("office_elevator_button3")
-		local call1 = self:GetMetaTarget("office_elevator_call1")
-		local call2 = self:GetMetaTarget("office_elevator_call2")
-		local call3 = self:GetMetaTarget("office_elevator_call3")
-		local gate = self:GetMetaTarget("office_elevator_gate")
-		local door1 = self:GetMetaTarget("office_elevator_door1")
-		local door2 = self:GetMetaTarget("office_elevator_door2")
-		local door3 = self:GetMetaTarget("office_elevator_door3")
+		local elevator = self:GetMetaTarget("city_elevator")
+		local path1 = self:GetMetaTarget("city_elevator_path1")
+		local path2 = self:GetMetaTarget("city_elevator_path2")
+		local path3 = self:GetMetaTarget("city_elevator_path3")
+		local button1 = self:GetMetaTarget("city_elevator_button1")
+		local button2 = self:GetMetaTarget("city_elevator_button2")
+		local button3 = self:GetMetaTarget("city_elevator_button3")
+		local call1 = self:GetMetaTarget("city_elevator_call1")
+		local call2 = self:GetMetaTarget("city_elevator_call2")
+		local call3 = self:GetMetaTarget("city_elevator_call3")
+		local door1 = self:GetMetaTarget("city_elevator_door1")
+		local door2 = self:GetMetaTarget("city_elevator_door2")
+		local door3 = self:GetMetaTarget("city_elevator_door3")
 
 		button1:SetKeyValue("wait", buttonDelay)
 		button2:SetKeyValue("wait", buttonDelay)
@@ -24,9 +23,8 @@ MAP_CONTROLLER_FUNC:Push(
 		call1:SetKeyValue("wait", buttonDelay)
 		call2:SetKeyValue("wait", buttonDelay)
 		call3:SetKeyValue("wait", buttonDelay)
-		elevator:SetKeyValue("startspeed", 50)
+		elevator:SetKeyValue("startspeed", 80)
 
-		gate:Fire("SetAnimation", "open")
 		door1:Fire("Open")
 
 		local isMoving = false
@@ -38,7 +36,6 @@ MAP_CONTROLLER_FUNC:Push(
 			end
 			isMoving = true
 
-			gate:Fire("SetAnimation", "close")
 			door1:Fire("Close")
 			door2:Fire("Close")
 			door3:Fire("Close")
@@ -65,7 +62,6 @@ MAP_CONTROLLER_FUNC:Push(
 			else
 				door3:Fire("Open", nil, 1)
 			end
-			gate:Fire("SetAnimation", "open", 1.5)
 
 			timer.Simple(
 				buttonDelay,

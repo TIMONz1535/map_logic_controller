@@ -1,4 +1,4 @@
--- luacheck: globals ents ENT PB_GenerateTimeId Stack timer IsValid isfunction include MAP_CONTROLLER_FUNC
+-- luacheck: globals ents ENT PB_GenerateTimeId Stack timer IsValid isnumber isfunction include MAP_CONTROLLER_FUNC
 
 --[[
 	Please don't create multiple map_logic_controllers.
@@ -12,6 +12,9 @@ local META_TARGET = {}
 
 -- Симулирует вызов функции на энтити ent:SomeFunc()
 META_TARGET.__index = function(self, key)
+	if isnumber(key) then
+		return self.entities[key]
+	end
 	return function(_, ...)
 		for _, v in ipairs(self.entities) do
 			if IsValid(v) then
@@ -82,6 +85,10 @@ function ENT:Initialize()
 
 	include("office_elevator.lua")
 	include("med_elevator.lua")
+	include("city_elevator.lua")
+	include("metropol_elevator.lua")
+	include("beach_elevator.lua")
+	include("rebel_elevator.lua")
 
 	for _, func in ipairs(MAP_CONTROLLER_FUNC) do
 		func(self)
