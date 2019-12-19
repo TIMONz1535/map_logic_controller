@@ -90,6 +90,8 @@ function ENT:Initialize()
 	include("entities/map_logic_controller/beach_elevator.lua")
 	include("entities/map_logic_controller/rebel_elevator.lua")
 	include("entities/map_logic_controller/escape_door.lua")
+	include("entities/map_logic_controller/valve_gates.lua")
+	include("entities/map_logic_controller/others.lua")
 
 	for _, func in ipairs(MAP_CONTROLLER_FUNC) do
 		func(self)
