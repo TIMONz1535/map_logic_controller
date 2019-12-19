@@ -37,6 +37,11 @@ MAP_CONTROLLER_FUNC:Push(
 		call4:SetKeyValue("wait", buttonDelay)
 		call5:SetKeyValue("wait", buttonDelay)
 		elevator:SetKeyValue("startspeed", 50)
+		door1:DisableCombineUse()
+		door2:DisableCombineUse()
+		door3:DisableCombineUse()
+		door4:DisableCombineUse()
+		door5:DisableCombineUse()
 
 		gate:Fire("SetAnimation", "open")
 		door1:Fire("Open")
