@@ -42,6 +42,7 @@ ENT.Type = "point"
 
 function ENT:AcceptInput(input, activator, ent, output)
 	if input == "OutputCallback" then
+		assert(not ent:IsPlayer(), "engine logic return Player as ent, sorry you are out of luck")
 		ent["map_logic_" .. output](ent, activator)
 		return true
 	end

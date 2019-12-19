@@ -15,51 +15,61 @@ MAP_CONTROLLER_FUNC:Push(
 		button:SetKeyValue("wait", buttonDelay)
 		door:DisableCombineUse()
 
+		local lightState = true
 		local isPressed1 = false
 		local isPressed2 = false
-		local lightState = false
 
 		level1.OnOpen = function(ent, activator)
-			lightState = not lightState
-			if lightState then
-				light:Fire("TurnOn")
-				lamp:Fire("Skin", "1")
-			else
-				light:Fire("TurnOff")
-				lamp:Fire("Skin", "0")
-			end
-
 			isPressed1 = true
 			timer.Simple(
 				0.5,
 				function()
+					if not isPressed1 then
+						return
+					end
 					isPressed1 = false
+
+					lightState = not lightState
+					if lightState then
+						light:Fire("TurnOn")
+						lamp:Fire("Skin", "1")
+					else
+						light:Fire("TurnOff")
+						lamp:Fire("Skin", "0")
+					end
 				end
 			)
 
 			if isPressed1 and isPressed2 then
+				isPressed1 = false
+				isPressed2 = false
 				door:Fire("Open")
 			end
 		end
 		level2.OnOpen = function(ent, activator)
-			lightState = not lightState
-			if lightState then
-				light:Fire("TurnOn")
-				lamp:Fire("Skin", "1")
-			else
-				light:Fire("TurnOff")
-				lamp:Fire("Skin", "0")
-			end
-
 			isPressed2 = true
 			timer.Simple(
 				0.5,
 				function()
+					if not isPressed2 then
+						return
+					end
 					isPressed2 = false
+
+					lightState = not lightState
+					if lightState then
+						light:Fire("TurnOn")
+						lamp:Fire("Skin", "1")
+					else
+						light:Fire("TurnOff")
+						lamp:Fire("Skin", "0")
+					end
 				end
 			)
 
 			if isPressed1 and isPressed2 then
+				isPressed1 = false
+				isPressed2 = false
 				door:Fire("Open")
 			end
 		end
