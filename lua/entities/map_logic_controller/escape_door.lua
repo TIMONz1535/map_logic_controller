@@ -1,4 +1,4 @@
--- luacheck: globals timer MAP_CONTROLLER_FUNC
+-- luacheck: globals timer MAP_CONTROLLER_FUNC FL_ATCONTROLS
 
 MAP_CONTROLLER_FUNC:Push(
 	function(self)
@@ -13,6 +13,7 @@ MAP_CONTROLLER_FUNC:Push(
 		level1:SetKeyValue("wait", buttonDelay)
 		level2:SetKeyValue("wait", buttonDelay)
 		button:SetKeyValue("wait", buttonDelay)
+		door:DisableCombineUse()
 
 		local isPressed1 = false
 		local isPressed2 = false
@@ -37,7 +38,6 @@ MAP_CONTROLLER_FUNC:Push(
 			)
 
 			if isPressed1 and isPressed2 then
-				door:Fire("Unlock")
 				door:Fire("Open")
 			end
 		end
@@ -60,18 +60,12 @@ MAP_CONTROLLER_FUNC:Push(
 			)
 
 			if isPressed1 and isPressed2 then
-				door:Fire("Unlock")
 				door:Fire("Open")
 			end
 		end
 
 		button.OnPressed = function(ent, activator)
-			door:Fire("Unlock")
 			door:Fire("Open")
-		end
-
-		door.OnClose = function(ent, activator)
-			ent:Fire("Lock")
 		end
 	end
 )
