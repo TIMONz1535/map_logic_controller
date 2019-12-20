@@ -32,7 +32,13 @@ META_TARGET.__newindex = function(self, output, func)
 	assert(IsValid(ent), "no valid ent")
 
 	ent["map_logic_" .. output] = func
-	ent:Fire("AddOutput", ("%s %s:OutputCallback:%s:0:-1"):format(output, self.managerName, output))
+
+	-- support for call output with changeable values
+	if output == "Position" then
+		ent:Fire("AddOutput", ("%s %s:OutputPosition::0:-1"):format(output, self.managerName))
+	else
+		ent:Fire("AddOutput", ("%s %s:OutputCallback:%s:0:-1"):format(output, self.managerName, output))
+	end
 end
 
 -- ====================================================================================================
@@ -44,6 +50,10 @@ function ENT:AcceptInput(input, activator, ent, output)
 	if input == "OutputCallback" then
 		assert(not ent:IsPlayer(), "engine logic return Player as ent, sorry you are out of luck")
 		ent["map_logic_" .. output](ent, activator)
+		return true
+	elseif input == "OutputPosition" then
+		assert(not ent:IsPlayer(), "engine logic return Player as ent, sorry you are out of luck")
+		ent["map_logic_Position"](ent, activator, output)
 		return true
 	end
 end
