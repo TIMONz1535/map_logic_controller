@@ -22,8 +22,8 @@ MAP_CONTROLLER_FUNC:Push(
 			end
 
 			move.OnFullyClosed = function(ent, activator)
-				valve1:Fire("Unlock")
-				valve2:Fire("Unlock")
+				valve1:Fire("Unlock", nil, 0.5)
+				valve2:Fire("Unlock", nil, 0.5)
 			end
 		end
 		do
@@ -46,8 +46,8 @@ MAP_CONTROLLER_FUNC:Push(
 			end
 
 			move.OnFullyClosed = function(ent, activator)
-				valve1:Fire("Unlock")
-				valve2:Fire("Unlock")
+				valve1:Fire("Unlock", nil, 0.5)
+				valve2:Fire("Unlock", nil, 0.5)
 			end
 		end
 	end
