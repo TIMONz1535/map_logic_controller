@@ -11,6 +11,7 @@ MAP_CONTROLLER_FUNC:Push(
 		local toiler_door = self:GetMetaTarget("grizzly_secretdoor")
 		local metropol_door = self:GetMetaTarget("slums_secretdoor2")
 		local metropol_window = self:GetMetaTarget("slums_secretdoor3")
+		local puzzle_door = self:GetMetaTarget("grizzly_sewerdoor")
 
 		box1:DisableCombineUse()
 		box2:DisableCombineUse()
@@ -21,5 +22,6 @@ MAP_CONTROLLER_FUNC:Push(
 		toiler_door:DisableCombineUse()
 		metropol_door:DisableCombineUse()
 		metropol_window:DisableCombineUse()
+		puzzle_door:DisableCombineUse()
 	end
 )
