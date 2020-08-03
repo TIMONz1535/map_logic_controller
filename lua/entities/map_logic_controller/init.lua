@@ -8,6 +8,9 @@
 --]]
 include("cwhl2rp/gamemode/external/stack.lua")
 
+local inputName = "OutputCallback"
+local inputPositionName = "OutputPosition"
+
 local META_TARGET = {}
 
 -- Симулирует вызов функции на энтити ent:SomeFunc()
@@ -25,7 +28,7 @@ META_TARGET.__index = function(self, key)
 	end
 end
 
--- Регистрирует OutputCallback для энтитей.
+-- Регистрирует обратный вызов на нужный оутпут, который отсылается в контроллер.
 META_TARGET.__newindex = function(self, output, func)
 	assert(#self.entities == 1, "attempt to register callback to multiple entities: " .. output)
 	local ent = self.entities[1]
@@ -35,9 +38,9 @@ META_TARGET.__newindex = function(self, output, func)
 
 	-- support for call output with changeable values
 	if output == "Position" then
-		ent:Fire("AddOutput", ("%s %s:OutputPosition::0:-1"):format(output, self.managerName))
+		ent:Fire("AddOutput", ("%s %s:%s::0:-1"):format(output, self.managerName, inputPositionName))
 	else
-		ent:Fire("AddOutput", ("%s %s:OutputCallback:%s:0:-1"):format(output, self.managerName, output))
+		ent:Fire("AddOutput", ("%s %s:%s:%s:0:-1"):format(output, self.managerName, inputName, output))
 	end
 end
 
@@ -47,13 +50,13 @@ ENT.Base = "base_point"
 ENT.Type = "point"
 
 function ENT:AcceptInput(input, activator, ent, output)
-	if input == "OutputCallback" then
+	if input == inputName or input == inputPositionName then
 		assert(not ent:IsPlayer(), "engine logic return Player as ent, sorry you are out of luck")
-		ent["map_logic_" .. output](ent, activator)
-		return true
-	elseif input == "OutputPosition" then
-		assert(not ent:IsPlayer(), "engine logic return Player as ent, sorry you are out of luck")
-		ent["map_logic_Position"](ent, activator, output)
+		if input == inputPositionName then
+			ent["map_logic_Position"](ent, activator, output)
+		else
+			ent["map_logic_" .. output](ent, activator)
+		end
 		return true
 	end
 end
@@ -110,4 +113,15 @@ function ENT:Initialize()
 	end
 	MAP_CONTROLLER_FUNC = nil
 	self.cache = nil
+end
+
+function ENT:TimerSimple(time, func)
+	timer.Simple(
+		time,
+		function()
+			if IsValid(self) then
+				func()
+			end
+		end
+	)
 end
