@@ -1,4 +1,4 @@
--- luacheck: globals timer MAP_CONTROLLER_FUNC FL_ATCONTROLS
+-- luacheck: globals timer MAP_CONTROLLER_FUNC
 
 MAP_CONTROLLER_FUNC:Push(
 	function(self)
