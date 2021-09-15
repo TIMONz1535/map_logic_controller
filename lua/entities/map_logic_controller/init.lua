@@ -8,9 +8,6 @@
 --]]
 include("cwhl2rp/gamemode/external/stack.lua")
 
-local inputName = "OutputCallback"
-local inputPositionName = "OutputPosition"
-
 local META_TARGET = {}
 
 -- Симулирует вызов функции на энтити ent:SomeFunc()
@@ -34,14 +31,11 @@ META_TARGET.__newindex = function(self, output, func)
 	local ent = self.entities[1]
 	assert(IsValid(ent), "no valid ent")
 
-	ent["map_logic_" .. output] = func
+	ent.mapLogic = ent.mapLogic or {}
+	ent.mapLogic[output] = func
 
-	-- support for call output with changeable values
-	if output == "Position" then
-		ent:Fire("AddOutput", ("%s %s:%s::0:-1"):format(output, self.managerName, inputPositionName))
-	else
-		ent:Fire("AddOutput", ("%s %s:%s:%s:0:-1"):format(output, self.managerName, inputName, output))
-	end
+	-- Don't write any to parameter for support outputs with changeable values, like Position
+	ent:Fire("AddOutput", ("%s %s:__%s::0:-1"):format(output, self.managerName, output))
 end
 
 -- ====================================================================================================
@@ -49,14 +43,17 @@ end
 ENT.Base = "base_point"
 ENT.Type = "point"
 
-function ENT:AcceptInput(input, activator, ent, output)
-	if input == inputName or input == inputPositionName then
-		assert(not ent:IsPlayer(), "engine logic return Player as ent, sorry you are out of luck")
-		if input == inputPositionName then
-			ent["map_logic_Position"](ent, activator, output)
-		else
-			ent["map_logic_" .. output](ent, activator)
-		end
+function ENT:AcceptInput(input, activator, ent, value)
+	if input:sub(1, 2) == "__" then
+		local output = input:sub(3)
+		local info = ("%s %s:%s (%s) - "):format(tostring(ent), output, tostring(activator), value)
+		assert(not ent:IsPlayer(), info .. "engine logic returns Player as caller entity, sorry you are out of luck")
+		assert(istable(ent.mapLogic), info .. "entity doesn't have mapLogic table")
+
+		local func = ent.mapLogic[output]
+		assert(func, info .. "entity's mapLogic table doesn't have output func")
+
+		func(ent, activator, value)
 		return true
 	end
 end
@@ -115,6 +112,7 @@ function ENT:Initialize()
 	self.cache = nil
 end
 
+-- helper function
 function ENT:TimerSimple(time, func)
 	timer.Simple(
 		time,
