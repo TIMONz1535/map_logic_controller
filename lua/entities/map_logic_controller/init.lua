@@ -36,8 +36,13 @@ META_TARGET.__newindex = function(self, output, func)
 	ent.mapLogic = ent.mapLogic or {}
 	ent.mapLogic[output] = func
 
-	-- Don't write any to parameter for support outputs with changeable values, like Position
-	ent:Fire("AddOutput", ("%s %s:__%s::0:-1"):format(output, self.controllerName, output))
+	-- To support a generated output values (like Position), leave the 'parameter' empty.
+	ent:Input(
+		"AddOutput",
+		self.controller,
+		self.controller,
+		("%s %s:__%s::0:-1"):format(output, self.controllerName, output)
+	)
 end
 
 -- ====================================================================================================
@@ -62,8 +67,7 @@ end
 
 function ENT:GetMetaTarget(name)
 	assert(self.cache, "no cache in controller")
-	local entities = self.cache[name]
-	assert(entities, "no entities with name: " .. name)
+	local entities = self.cache[name] or {}
 
 	self.statsEntities = self.statsEntities + #entities
 
