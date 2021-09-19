@@ -10,13 +10,13 @@ include("cwhl2rp/gamemode/external/stack.lua")
 
 local META_TARGET = {}
 
--- Симулирует вызов функции на энтити ent:SomeFunc()
+-- Redirect the function call to the internal entities
 META_TARGET.__index = function(self, key)
 	if isnumber(key) then
-		return self.entities[key]
+		return
 	end
 	return function(_, ...)
-		for _, v in ipairs(self.entities) do
+		for _, v in ipairs(self) do
 			if IsValid(v) then
 				assert(isfunction(v[key]), "no valid method: " .. key)
 				v[key](v, ...)
@@ -27,22 +27,23 @@ end
 
 -- Регистрирует обратный вызов на нужный оутпут, который отсылается в контроллер.
 META_TARGET.__newindex = function(self, output, func)
-	assert(#self.entities == 1, "attempt to register callback to multiple entities: " .. output)
-	local ent = self.entities[1]
-	assert(IsValid(ent), "no valid ent")
+	assert(#self ~= 0, "attempt to register callback to empty entities: " .. output)
+	for _, v in ipairs(self) do
+		assert(IsValid(v), "no valid ent")
 
-	self.controller.statsOutputs = self.controller.statsOutputs + 1
+		self.controller.statsOutputs = self.controller.statsOutputs + 1
 
-	ent.mapLogic = ent.mapLogic or {}
-	ent.mapLogic[output] = func
+		v.mapLogic = v.mapLogic or {}
+		v.mapLogic[output] = func
 
-	-- To support a generated output values (like Position), leave the 'parameter' empty.
-	ent:Input(
-		"AddOutput",
-		self.controller,
-		self.controller,
-		("%s %s:__%s::0:-1"):format(output, self.controllerName, output)
-	)
+		-- To support a generated output values (like Position), leave the 'parameter' empty.
+		v:Input(
+			"AddOutput",
+			self.controller,
+			self.controller,
+			("%s %s:__%s::0:-1"):format(output, self.controllerName, output)
+		)
+	end
 end
 
 -- ====================================================================================================
@@ -71,12 +72,9 @@ function ENT:GetMetaTarget(name)
 
 	self.statsEntities = self.statsEntities + #entities
 
-	local metaTarget = {
-		controller = self,
-		controllerName = self:GetName(),
-		entities = entities
-	}
-	return setmetatable(metaTarget, META_TARGET)
+	entities.controller = self
+	entities.controllerName = self:GetName()
+	return setmetatable(entities, META_TARGET)
 end
 
 function ENT:CacheEntNames()
