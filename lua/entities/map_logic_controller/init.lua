@@ -1,54 +1,58 @@
 --[[
 	© 2021 PostBellum HL2 RP
-	Author: TIMON_Z1535 - http://steamcommunity.com/profiles/76561198047725014
+	Author: TIMON_Z1535 - https://steamcommunity.com/profiles/76561198047725014
+
+	Repository: https://github.com/TIMONz1535/map_logic_controller
+	Wiki: https://github.com/TIMONz1535/map_logic_controller/wiki
 --]]
 -- luacheck: globals ENT IsValid isnumber isfunction isstring istable ents timer game engine hook
 -- luacheck: globals MsgN CreateConVar concommand FCVAR_NONE
 
---[[
-	Please don't create multiple map_logic_controllers.
-	Unlock all doors for elevator.
-	Disable all sounds for buttons on floor and in elevator.
-	Repeat path tracks in the ring for hot reload.
---]]
 local META_TARGET = {}
 
--- Redirect the function call to the internal entities
+-- Redirect the function call to internal entities.
 META_TARGET.__index = function(self, key)
 	if isnumber(key) then
 		return
 	end
+
+	assert(#self ~= 0, ("no entities with name '%s', can't redirect method '%s'"):format(self.name, key))
+
 	return function(_, ...)
 		for _, v in ipairs(self) do
 			if IsValid(v) then
-				assert(isfunction(v[key]), "no valid method: " .. key)
+				if not isfunction(v[key]) then
+					local info = ("entity '%s' (%s)"):format(self.name, v:GetClass())
+					error(("%s doesn't have a method '%s'"):format(info, key))
+				end
 				v[key](v, ...)
 			end
 		end
 	end
 end
 
--- Регистрирует обратный вызов на нужный оутпут, который отсылается в контроллер.
+-- Add output to internal entities that will be called on Lua-side by the controller.
 META_TARGET.__newindex = function(self, output, func)
-	assert(#self ~= 0, "attempt to register callback to empty entities: " .. output)
+	assert(#self ~= 0, ("no entities with name '%s', can't add output '%s'"):format(self.name, output))
+
 	for _, v in ipairs(self) do
-		assert(IsValid(v), "no valid ent")
+		if IsValid(v) then
+			v.mapLogic = v.mapLogic or {}
+			local prevFunc = v.mapLogic[output]
+			v.mapLogic[output] = func
 
-		v.mapLogic = v.mapLogic or {}
-		local prevFunc = v.mapLogic[output]
-		v.mapLogic[output] = func
+			-- Don't call another AddOutput if we're just overriding a Lua function.
+			if not prevFunc then
+				self.controller.statsOutputs = self.controller.statsOutputs + 1
 
-		-- Don't call another AddOutput if we're just overriding a Lua function.
-		if not prevFunc then
-			self.controller.statsOutputs = self.controller.statsOutputs + 1
-
-			-- To support the generated output values (like Position), leave the 'parameter' empty.
-			v:Input(
-				"AddOutput",
-				self.controller,
-				self.controller,
-				("%s %s:__%s::0:-1"):format(output, self.controllerName, output)
-			)
+				-- To support the generated output values (like Position), leave the 'parameter' empty.
+				v:Input(
+					"AddOutput",
+					self.controller,
+					self.controller,
+					("%s %s:__%s::0:-1"):format(output, self.controller:GetName(), output)
+				)
+			end
 		end
 	end
 end
@@ -66,17 +70,23 @@ local map_logic_override =
 ENT.Base = "base_point"
 ENT.Type = "point"
 
-function ENT:AcceptInput(input, activator, ent, value)
+function ENT:AcceptInput(input, activator, caller, value)
 	if input:sub(1, 2) == "__" then
 		local output = input:sub(3)
-		local info = ("%s %s:%s (%s) - "):format(tostring(ent), output, tostring(activator), value)
-		assert(not ent:IsPlayer(), info .. "engine logic returns Player as caller entity, sorry you are out of luck")
-		assert(istable(ent.mapLogic), info .. "entity doesn't have mapLogic table")
 
-		local func = ent.mapLogic[output]
-		assert(func, info .. "entity's mapLogic table doesn't have output func")
+		assert(not caller:IsPlayer(), "engine returns Player as caller, sorry you are out of luck")
+		if not istable(caller.mapLogic) then
+			local info = ("entity '%s' (%s)"):format(caller:GetName(), caller:GetClass())
+			error(("no mapLogic table in %s for calling the Lua-side output '%s'"):format(info, output))
+		end
 
-		func(ent, activator, value)
+		local func = caller.mapLogic[output]
+		if not func then
+			local info = ("entity '%s' (%s)"):format(caller:GetName(), caller:GetClass())
+			error(("no output function '%s' in mapLogic table of %s"):format(output, info))
+		end
+
+		func(caller, activator, value)
 		return true
 	end
 end
@@ -84,16 +94,17 @@ end
 function ENT:GetMetaTarget(name)
 	local entities
 	if isstring(name) then
-		assert(self.cache, "no cache in controller")
+		assert(self.cache, ("no cache in controller, can't get MetaTarget for '%s'"):format(name))
 		entities = self.cache[name] or {}
 	else
 		entities = {name}
+		name = name:GetName()
 	end
 
 	self.statsEntities = self.statsEntities + #entities
 
+	entities.name = name
 	entities.controller = self
-	entities.controllerName = self:GetName()
 	return setmetatable(entities, META_TARGET)
 end
 
