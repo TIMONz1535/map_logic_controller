@@ -1,4 +1,9 @@
--- luacheck: globals ents ENT PB_GenerateTimeId timer IsValid isnumber isfunction include MAP_CONTROLLER_FUNC
+--[[
+	© 2021 PostBellum HL2 RP
+	Author: TIMON_Z1535 - http://steamcommunity.com/profiles/76561198047725014
+--]]
+-- luacheck: globals ENT IsValid isnumber isfunction isstring istable ents timer game engine hook
+-- luacheck: globals MsgN CreateConVar concommand FCVAR_NONE
 
 --[[
 	Please don't create multiple map_logic_controllers.
@@ -50,6 +55,14 @@ end
 
 -- ====================================================================================================
 
+local map_logic_override =
+	CreateConVar(
+	"map_logic_override",
+	"",
+	FCVAR_NONE,
+	"Overrides map name for which the controller will initialize the logic."
+)
+
 ENT.Base = "base_point"
 ENT.Type = "point"
 
@@ -100,12 +113,22 @@ function ENT:InitializeLogic()
 	self:CacheEntNames()
 	self:SetName("map_logic_controller" .. PB_GenerateTimeId())
 
-	local mapName = game.GetMap()
+	local mapName = map_logic_override:GetString()
+	if mapName == "" then
+		mapName = game.GetMap()
+	end
 
 	self.statsEntities = 0
 	self.statsOutputs = 0
 	hook.Run("OnMapLogicInitialized", self, mapName)
 	self.cache = nil
+
+	-- Map is not configured, the controller is useless.
+	if self.statsEntities == 0 and self.statsOutputs == 0 then
+		MsgN("[MapLogic] No logic for '", mapName, "', controller will be removed...")
+		self:Remove()
+		return
+	end
 
 	MsgN(
 		"[MapLogic] Initialized successfully for '",
@@ -121,14 +144,8 @@ function ENT:InitializeLogic()
 end
 
 function ENT:Initialize()
-	-- no multiple controllers
-	for _, v in ipairs(ents.FindByClass("map_logic_controller")) do
-		if v ~= self then
-			v:Remove()
-		end
-	end
-
-	-- Wait for second frame because OnRemove is executed in next frame. Also it allows rename entities in InitPostEntity.
+	-- Wait for second frame because OnRemove is executed in next frame.
+	-- Also it allows you rename map entities in InitPostEntity.
 	local delay = engine.TickInterval() * 2
 	self:TimerSimple(delay, self.InitializeLogic)
 end
@@ -171,7 +188,6 @@ concommand.Add(
 			return
 		end
 
-		-- TODO
 		for _, v in ipairs(ents.FindByClass("map_logic_controller")) do
 			v:Remove()
 		end
