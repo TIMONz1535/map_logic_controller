@@ -31,18 +31,22 @@ META_TARGET.__newindex = function(self, output, func)
 	for _, v in ipairs(self) do
 		assert(IsValid(v), "no valid ent")
 
-		self.controller.statsOutputs = self.controller.statsOutputs + 1
-
 		v.mapLogic = v.mapLogic or {}
+		local prevFunc = v.mapLogic[output]
 		v.mapLogic[output] = func
 
-		-- To support a generated output values (like Position), leave the 'parameter' empty.
-		v:Input(
-			"AddOutput",
-			self.controller,
-			self.controller,
-			("%s %s:__%s::0:-1"):format(output, self.controllerName, output)
-		)
+		-- Don't call another AddOutput if we're just overriding a Lua function.
+		if not prevFunc then
+			self.controller.statsOutputs = self.controller.statsOutputs + 1
+
+			-- To support the generated output values (like Position), leave the 'parameter' empty.
+			v:Input(
+				"AddOutput",
+				self.controller,
+				self.controller,
+				("%s %s:__%s::0:-1"):format(output, self.controllerName, output)
+			)
+		end
 	end
 end
 
@@ -67,8 +71,13 @@ function ENT:AcceptInput(input, activator, ent, value)
 end
 
 function ENT:GetMetaTarget(name)
-	assert(self.cache, "no cache in controller")
-	local entities = self.cache[name] or {}
+	local entities
+	if isstring(name) then
+		assert(self.cache, "no cache in controller")
+		entities = self.cache[name] or {}
+	else
+		entities = {name}
+	end
 
 	self.statsEntities = self.statsEntities + #entities
 
