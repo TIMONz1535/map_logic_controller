@@ -1,6 +1,10 @@
 -- luacheck: globals timer MAP_CONTROLLER_FUNC
 
-local function Init(self)
+local function Init(self, mapName)
+	if mapName ~= "rp_pb_industrial17_v2" then
+		return
+	end
+
 	local box1 = self:GetMetaTarget("secret_box1")
 	local box2 = self:GetMetaTarget("secret_box2")
 	local box3 = self:GetMetaTarget("secret_box3")
