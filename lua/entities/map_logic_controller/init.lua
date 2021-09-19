@@ -123,3 +123,31 @@ function ENT:TimerSimple(time, func)
 		end
 	)
 end
+
+-- ====================================================================================================
+
+hook.Add(
+	"InitPostEntity",
+	"MapLogicSpawn",
+	function()
+		local ent = ents.Create("map_logic_controller")
+		ent:Spawn()
+	end
+)
+
+concommand.Add(
+	"map_logic_reset",
+	function(ply)
+		if IsValid(ply) and not ply:IsSuperAdmin() then
+			return
+		end
+
+		-- TODO
+		for _, v in ipairs(ents.FindByClass("map_logic_controller")) do
+			v:Remove()
+		end
+
+		local ent = ents.Create("map_logic_controller")
+		ent:Spawn()
+	end
+)
