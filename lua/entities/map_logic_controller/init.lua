@@ -87,14 +87,7 @@ function ENT:CacheEntNames()
 	self.cache = cache
 end
 
-function ENT:Initialize()
-	-- no multiple controllers
-	for _, v in ipairs(ents.FindByClass("map_logic_controller")) do
-		if v ~= self then
-			v:Remove()
-		end
-	end
-
+function ENT:InitializeLogic()
 	self:SetName("map_logic_controller" .. PB_GenerateTimeId())
 	self:CacheEntNames()
 
@@ -118,13 +111,34 @@ function ENT:Initialize()
 	self.statsOutputs = nil
 end
 
+function ENT:Initialize()
+	-- no multiple controllers
+	for _, v in ipairs(ents.FindByClass("map_logic_controller")) do
+		if v ~= self then
+			v:Remove()
+		end
+	end
+
+	-- Wait for second frame because OnRemove is executed in next frame. Also it allows rename entities in InitPostEntity.
+	local delay = engine.TickInterval() * 2
+	self:TimerSimple(delay, self.InitializeLogic)
+end
+
+function ENT:OnRemove()
+	for _, v in ipairs(ents.GetAll()) do
+		if v.mapLogic then
+			v.mapLogic = nil
+		end
+	end
+end
+
 -- helper function
 function ENT:TimerSimple(time, func)
 	timer.Simple(
 		time,
 		function()
 			if IsValid(self) then
-				func()
+				func(self)
 			end
 		end
 	)
