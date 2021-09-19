@@ -92,23 +92,9 @@ function ENT:Initialize()
 
 	self:SetName("logic_manager_" .. PB_GenerateTimeId())
 	self:CacheEntNames()
-	MAP_CONTROLLER_FUNC = Stack()
 
-	include("entities/map_logic_controller/office_elevator.lua")
-	include("entities/map_logic_controller/med_elevator.lua")
-	include("entities/map_logic_controller/city_elevator.lua")
-	include("entities/map_logic_controller/metropol_elevator.lua")
-	include("entities/map_logic_controller/beach_elevator.lua")
-	include("entities/map_logic_controller/rebel_elevator.lua")
-	include("entities/map_logic_controller/escape_door.lua")
-	include("entities/map_logic_controller/valve_gates.lua")
-	include("entities/map_logic_controller/secret_doors.lua")
-	include("entities/map_logic_controller/others.lua")
-
-	for _, func in ipairs(MAP_CONTROLLER_FUNC) do
-		func(self)
-	end
-	MAP_CONTROLLER_FUNC = nil
+	hook.Run("OnMapLogicInitialized", self)
+	print("[MapLogic] Initialized successfully")
 	self.cache = nil
 end
 
