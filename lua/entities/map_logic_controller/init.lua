@@ -31,11 +31,13 @@ META_TARGET.__newindex = function(self, output, func)
 	local ent = self.entities[1]
 	assert(IsValid(ent), "no valid ent")
 
+	self.controller.statsOutputs = self.controller.statsOutputs + 1
+
 	ent.mapLogic = ent.mapLogic or {}
 	ent.mapLogic[output] = func
 
 	-- Don't write any to parameter for support outputs with changeable values, like Position
-	ent:Fire("AddOutput", ("%s %s:__%s::0:-1"):format(output, self.managerName, output))
+	ent:Fire("AddOutput", ("%s %s:__%s::0:-1"):format(output, self.controllerName, output))
 end
 
 -- ====================================================================================================
@@ -59,12 +61,15 @@ function ENT:AcceptInput(input, activator, ent, value)
 end
 
 function ENT:GetMetaTarget(name)
-	assert(self.cache, "no cache in manager")
+	assert(self.cache, "no cache in controller")
 	local entities = self.cache[name]
 	assert(entities, "no entities with name: " .. name)
 
+	self.statsEntities = self.statsEntities + #entities
+
 	local metaTarget = {
-		managerName = self:GetName(),
+		controller = self,
+		controllerName = self:GetName(),
 		entities = entities
 	}
 	return setmetatable(metaTarget, META_TARGET)
@@ -90,12 +95,27 @@ function ENT:Initialize()
 		end
 	end
 
-	self:SetName("logic_manager_" .. PB_GenerateTimeId())
+	self:SetName("map_logic_controller" .. PB_GenerateTimeId())
 	self:CacheEntNames()
 
-	hook.Run("OnMapLogicInitialized", self)
-	print("[MapLogic] Initialized successfully")
+	local mapName = game.GetMap()
+
+	self.statsEntities = 0
+	self.statsOutputs = 0
+	hook.Run("OnMapLogicInitialized", self, mapName)
 	self.cache = nil
+
+	MsgN(
+		"[MapLogic] Initialized successfully for '",
+		mapName,
+		"' (affected entities: ",
+		self.statsEntities,
+		", added outputs: ",
+		self.statsOutputs,
+		")"
+	)
+	self.statsEntities = nil
+	self.statsOutputs = nil
 end
 
 -- helper function

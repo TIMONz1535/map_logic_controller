@@ -1,6 +1,10 @@
 -- luacheck: globals timer MAP_CONTROLLER_FUNC
 
-local function Init(self)
+local function Init(self, mapName)
+	if mapName ~= "rp_pb_industrial17_v2" then
+		return
+	end
+
 	do
 		local valve1 = self:GetMetaTarget("gate1_wheel")
 		local valve2 = self:GetMetaTarget("gate1_wheel2")

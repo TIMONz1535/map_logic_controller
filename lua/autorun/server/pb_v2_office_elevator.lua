@@ -1,6 +1,10 @@
 -- luacheck: globals timer MAP_CONTROLLER_FUNC
 
-local function Init(self)
+local function Init(self, mapName)
+	if mapName ~= "rp_pb_industrial17_v2" then
+		return
+	end
+
 	local buttonDelay = 3
 	local elevator = self:GetMetaTarget("office_elevator")
 	local path1 = self:GetMetaTarget("office_elevator_path1")

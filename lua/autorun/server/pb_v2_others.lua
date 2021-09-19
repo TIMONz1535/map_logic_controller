@@ -1,6 +1,10 @@
 -- luacheck: globals timer MAP_CONTROLLER_FUNC Clockwork LOGTYPE_URGENT cwCPPlug
 
-local function Init(self)
+local function Init(self, mapName)
+	if mapName ~= "rp_pb_industrial17_v2" then
+		return
+	end
+
 	local terms_no = self:GetMetaTarget("start_button_no")
 	local nexus_comend = self:GetMetaTarget("nexus_curfew")
 	local nexus_kk = self:GetMetaTarget("nexus_lockdowndeactivate")
