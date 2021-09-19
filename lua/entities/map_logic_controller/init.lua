@@ -1,4 +1,4 @@
--- luacheck: globals ents ENT PB_GenerateTimeId Stack timer IsValid isnumber isfunction include MAP_CONTROLLER_FUNC
+-- luacheck: globals ents ENT PB_GenerateTimeId timer IsValid isnumber isfunction include MAP_CONTROLLER_FUNC
 
 --[[
 	Please don't create multiple map_logic_controllers.
@@ -6,8 +6,6 @@
 	Disable all sounds for buttons on floor and in elevator.
 	Repeat path tracks in the ring for hot reload.
 --]]
-include("cwhl2rp/gamemode/external/stack.lua")
-
 local META_TARGET = {}
 
 -- Redirect the function call to the internal entities
@@ -89,18 +87,18 @@ end
 function ENT:CacheEntNames()
 	local cache = {}
 	for _, v in ipairs(ents.GetAll()) do
-		if v:CreatedByMap() then
-			local name = v:GetName()
-			cache[name] = cache[name] or Stack()
-			cache[name]:Push(v)
+		local name = v:GetName()
+		if name ~= "" then
+			cache[name] = cache[name] or {}
+			table.insert(cache[name], v)
 		end
 	end
 	self.cache = cache
 end
 
 function ENT:InitializeLogic()
-	self:SetName("map_logic_controller" .. PB_GenerateTimeId())
 	self:CacheEntNames()
+	self:SetName("map_logic_controller" .. PB_GenerateTimeId())
 
 	local mapName = game.GetMap()
 
