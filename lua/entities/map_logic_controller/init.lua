@@ -34,6 +34,7 @@ end
 -- Add output to internal entities that will be called on Lua-side by the controller.
 META_TARGET.__newindex = function(self, output, func)
 	assert(#self ~= 0, ("no entities with name '%s', can't add output '%s'"):format(self.name, output))
+	assert(IsValid(self.controller), ("invalid controller, can't add output '%s' for '%s'"):format(output, self.name))
 
 	for _, v in ipairs(self) do
 		if IsValid(v) then
@@ -74,7 +75,10 @@ function ENT:AcceptInput(input, activator, caller, value)
 	if input:sub(1, 2) == "__" then
 		local output = input:sub(3)
 
-		assert(not caller:IsPlayer(), "engine returns Player as caller, sorry you are out of luck")
+		-- currently there is no way to determine who is calling output
+		assert(IsValid(caller), ("invalid caller for output '%s'"):format(output))
+		assert(not caller:IsPlayer(), ("engine returns Player as caller for output '%s'"):format(output))
+
 		if not istable(caller.mapLogic) then
 			local info = ("entity '%s' (%s)"):format(caller:GetName(), caller:GetClass())
 			error(("no mapLogic table in %s for calling the Lua-side output '%s'"):format(info, output))
@@ -205,5 +209,7 @@ concommand.Add(
 
 		local ent = ents.Create("map_logic_controller")
 		ent:Spawn()
-	end
+	end,
+	nil,
+	"Removes the old controller and creates a new one. Forces the entire map logic to be initialized again."
 )
