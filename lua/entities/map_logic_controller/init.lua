@@ -6,7 +6,7 @@
 	Wiki: https://github.com/TIMONz1535/map_logic_controller/wiki
 --]]
 -- luacheck: globals ENT IsValid isnumber isfunction isstring istable ents timer game engine hook
--- luacheck: globals MsgN CreateConVar concommand FCVAR_NONE
+-- luacheck: globals MsgN CreateConVar concommand FCVAR_NONE SysTime
 
 local META_TARGET = {}
 
@@ -56,6 +56,13 @@ META_TARGET.__newindex = function(self, output, func)
 			end
 		end
 	end
+end
+
+-- generates a unique id even if you call many times per second
+local lastId = 0
+local function GenerateSysId()
+	lastId = math.max(lastId + 1, math.floor(SysTime()))
+	return lastId
 end
 
 -- ====================================================================================================
@@ -126,7 +133,7 @@ end
 
 function ENT:InitializeLogic()
 	self:CacheEntNames()
-	self:SetName("map_logic_controller" .. PB_GenerateTimeId())
+	self:SetName("map_logic_controller" .. GenerateSysId())
 
 	local mapName = map_logic_override:GetString()
 	if mapName == "" then
@@ -173,7 +180,7 @@ function ENT:OnRemove()
 	end
 end
 
--- helper function
+-- helper function to avoid copy-paste
 function ENT:TimerSimple(time, func)
 	timer.Simple(
 		time,
