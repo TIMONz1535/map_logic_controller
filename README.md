@@ -1,3 +1,5 @@
+# Map Logic Controller - Lua Inputs/Outputs
+
 **Map Logic Controller** (short `MapLogic`) allows you to setup the Inputs/Outputs logic on map from Lua.
 If you don't understand what I'm talking about, please refer to the official documentation [Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Inputs_and_Outputs).
 
@@ -37,7 +39,7 @@ You should refer to my [wiki](https://github.com/TIMONz1535/map_logic_controller
 
 ---
 
-© 2021 TIMON_Z1535
+© 2021 [TIMON_Z1535](https://steamcommunity.com/profiles/76561198047725014)
 
 Steam Workshop: https://steamcommunity.com/sharedfiles/filedetails/?id=2609701688
 
