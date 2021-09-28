@@ -18,7 +18,7 @@ For a coop-maps or a story-maps, you can setup the NPC spawn logic, control wave
 
 # Security recommendations
 
-It is important to understand that I am not responsible for the scripts that people make for their maps. This entity **is not** an alternative to `lua_run`, it **does't run code** and is not created from **Hammer**. This entity is designed to give easy control over the map logic from Lua scripts, but everything that the author of the script will write lies on his conscience.
+It is important to understand that I am not responsible for the scripts that people make for their maps. This entity **is not** an alternative to `lua_run`, it **does't run code** and is not created from **Hammer**. This entity is designed to give easy control over the map logic from Lua scripts, but everything that the script author will write is on his conscience.
 
 On Lua you can do anything, starting from simple prank, ending with major security things. Do not try to create secret buttons that give some goods or admin-access to player. This is similar to what if you used `lua_run` for fun, don't do that! **Please note that it is bad form to check access to secret rooms by SteamID. Please do not kick or ban players on your maps, this is a very bad thing.**
 
