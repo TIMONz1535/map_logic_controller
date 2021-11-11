@@ -16,7 +16,7 @@ local function Init(controller, mapName)
 	end
 	button1:Fire("Press") -- for test only
 
-	local testActivator = button1[1] -- the first button activates the second button
+	local testActivator = button1[1] -- direct access to the entity
 
 	-- if entity has no name, we can pass it directly
 	local button2 = controller:GetMetaTarget(ents.GetMapCreatedEntity(2591))

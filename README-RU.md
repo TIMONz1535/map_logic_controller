@@ -41,6 +41,6 @@
 
 © 2021 [TIMON_Z1535](https://steamcommunity.com/profiles/76561198047725014)
 
-Steam Workshop: https://steamcommunity.com/sharedfiles/filedetails/?id=2609701688
+Steam Workshop: https://steamcommunity.com/workshop/filedetails/?id=2609701688
 
 Wiki: https://github.com/TIMONz1535/map_logic_controller/wiki
