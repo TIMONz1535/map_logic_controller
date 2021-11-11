@@ -1,76 +1,77 @@
--- luacheck: globals timer MAP_CONTROLLER_FUNC
+--[[
+	© 2021 PostBellum HL2 RP
+	Author: TIMON_Z1535 - https://steamcommunity.com/profiles/76561198047725014
+--]]
+-- luacheck: globals hook timer util
 
-local function Init(self, mapName)
+local function Init(controller, mapName)
 	if mapName ~= "rp_pb_industrial17_v2" then
 		return
 	end
 
+	local elevator = controller:GetMetaTarget("city_elevator")
+	local paths = {
+		controller:GetMetaTarget("city_elevator_path1"),
+		controller:GetMetaTarget("city_elevator_path2"),
+		controller:GetMetaTarget("city_elevator_path3")
+	}
+	local buttons = {
+		controller:GetMetaTarget("city_elevator_button1"),
+		controller:GetMetaTarget("city_elevator_button2"),
+		controller:GetMetaTarget("city_elevator_button3")
+	}
+	local calls = {
+		controller:GetMetaTarget("city_elevator_call1"),
+		controller:GetMetaTarget("city_elevator_call2"),
+		controller:GetMetaTarget("city_elevator_call3")
+	}
+	local doors = {
+		controller:GetMetaTarget("city_elevator_door1"),
+		controller:GetMetaTarget("city_elevator_door2"),
+		controller:GetMetaTarget("city_elevator_door3")
+	}
+
 	local buttonDelay = 3
-	local elevator = self:GetMetaTarget("city_elevator")
-	local path1 = self:GetMetaTarget("city_elevator_path1")
-	local path2 = self:GetMetaTarget("city_elevator_path2")
-	local path3 = self:GetMetaTarget("city_elevator_path3")
-	local button1 = self:GetMetaTarget("city_elevator_button1")
-	local button2 = self:GetMetaTarget("city_elevator_button2")
-	local button3 = self:GetMetaTarget("city_elevator_button3")
-	local call1 = self:GetMetaTarget("city_elevator_call1")
-	local call2 = self:GetMetaTarget("city_elevator_call2")
-	local call3 = self:GetMetaTarget("city_elevator_call3")
-	local door1 = self:GetMetaTarget("city_elevator_door1")
-	local door2 = self:GetMetaTarget("city_elevator_door2")
-	local door3 = self:GetMetaTarget("city_elevator_door3")
-
-	button1:SetKeyValue("wait", buttonDelay)
-	button2:SetKeyValue("wait", buttonDelay)
-	button3:SetKeyValue("wait", buttonDelay)
-	call1:SetKeyValue("wait", buttonDelay)
-	call2:SetKeyValue("wait", buttonDelay)
-	call3:SetKeyValue("wait", buttonDelay)
 	elevator:SetKeyValue("startspeed", 80)
-	door1:DisableCombineUse()
-	door2:DisableCombineUse()
-	door3:DisableCombineUse()
+	for _, v in ipairs(buttons) do
+		v:SetKeyValue("wait", buttonDelay)
+	end
+	for _, v in ipairs(calls) do
+		v:SetKeyValue("wait", buttonDelay)
+	end
+	for _, v in ipairs(doors) do
+		v:DisableCombineUse()
+	end
 
-	door1:Fire("Open")
+	doors[1]:Fire("Open")
 
 	local isMoving = false
 	local targetFloor = 1
 
-	local function moveTo(floor)
+	local function MoveTo(floor)
 		if isMoving or targetFloor == floor then
 			return false
 		end
 		isMoving = true
 
-		door1:Fire("Close")
-		door2:Fire("Close")
-		door3:Fire("Close")
+		doors[targetFloor]:Fire("Close")
+		elevator:Fire(targetFloor < floor and "StartForward" or "StartBackward", nil, 1.5)
 
-		if targetFloor < floor then
-			elevator:Fire("StartForward", nil, 1.5)
-		else
-			elevator:Fire("StartBackward", nil, 1.5)
-		end
 		targetFloor = floor
 		return true
 	end
 
-	local function checkFloor(floor)
+	local function CheckFloor(floor)
 		if targetFloor ~= floor then
 			return false
 		end
-		elevator:Fire("Stop")
 
-		if floor == 1 then
-			door1:Fire("Open", nil, 1)
-		elseif floor == 2 then
-			door2:Fire("Open", nil, 1)
-		else
-			door3:Fire("Open", nil, 1)
-		end
+		elevator:Fire("Stop")
+		doors[floor]:Fire("Open", nil, 1)
+		util.ScreenShake(elevator[1]:GetPos(), 3, 1.5, 1, 80)
 
 		timer.Simple(
-			buttonDelay,
+			1.5 + buttonDelay,
 			function()
 				isMoving = false
 			end
@@ -78,31 +79,20 @@ local function Init(self, mapName)
 		return true
 	end
 
-	local function moveToGen(floor)
-		return function(ent, activator)
-			if moveTo(floor) then
-				ent:EmitSound("buttons/button24.wav", 75)
-			else
-				ent:EmitSound("buttons/button8.wav", 75)
-			end
+	for i, v in ipairs(buttons) do
+		v.OnPressed = function(ent, activator)
+			ent:EmitSound(MoveTo(i) and "buttons/button24.wav" or "buttons/button8.wav", 75)
 		end
 	end
-
-	button1.OnPressed = moveToGen(1)
-	button2.OnPressed = moveToGen(2)
-	button3.OnPressed = moveToGen(3)
-	call1.OnPressed = moveToGen(1)
-	call2.OnPressed = moveToGen(2)
-	call3.OnPressed = moveToGen(3)
-
-	path1.OnPass = function(ent, activator)
-		checkFloor(1)
+	for i, v in ipairs(calls) do
+		v.OnPressed = function(ent, activator)
+			ent:EmitSound(MoveTo(i) and "buttons/button24.wav" or "buttons/button8.wav", 75)
+		end
 	end
-	path2.OnPass = function(ent, activator)
-		checkFloor(2)
-	end
-	path3.OnPass = function(ent, activator)
-		checkFloor(3)
+	for i, v in ipairs(paths) do
+		v.OnPass = function(ent, activator)
+			CheckFloor(i)
+		end
 	end
 end
 
