@@ -59,7 +59,7 @@ local function Init(controller, mapName)
 
 		doors[floor]:Fire("Open", nil, 1)
 		gate:Fire("SetAnimation", "open", 1.5)
-		util.ScreenShake(elevator[1]:GetPos(), 3, 1.5, 1, 80)
+		util.ScreenShake(elevator[1]:GetPos(), 1, 1.5, 1, 80)
 
 		timer.Simple(
 			1.5 + buttonDelay,
