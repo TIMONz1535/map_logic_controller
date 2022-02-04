@@ -32,7 +32,7 @@ META_TARGET.__index = function(self, key)
 end
 
 -- Add output to internal entities that will be called on Lua-side by the controller.
-META_TARGET.__newindex = function(self, output, func)
+META_TARGET.__newindex = function(self, output, callback)
 	assert(#self ~= 0, ("no entities with name '%s', can't add output '%s'"):format(self.name, output))
 	assert(IsValid(self.controller), ("invalid controller, can't add output '%s' for '%s'"):format(output, self.name))
 
@@ -40,7 +40,7 @@ META_TARGET.__newindex = function(self, output, func)
 		if IsValid(v) then
 			v.mapLogic = v.mapLogic or {}
 			local prevFunc = v.mapLogic[output]
-			v.mapLogic[output] = func
+			v.mapLogic[output] = callback
 
 			-- Don't call another AddOutput if we're just overriding a Lua function.
 			if not prevFunc then
@@ -68,12 +68,7 @@ end
 -- ====================================================================================================
 
 local map_logic_override =
-	CreateConVar(
-	"map_logic_override",
-	"",
-	FCVAR_NONE,
-	"Overrides map name for which the controller will initialize the logic."
-)
+	CreateConVar("map_logic_override", "", FCVAR_NONE, "Overrides map name for which the controller will initialize the logic.")
 
 ENT.Base = "base_point"
 ENT.Type = "point"
@@ -91,13 +86,13 @@ function ENT:AcceptInput(input, activator, caller, value)
 			error(("no mapLogic table in %s for calling the Lua-side output '%s'"):format(info, output))
 		end
 
-		local func = caller.mapLogic[output]
-		if not func then
+		local callback = caller.mapLogic[output]
+		if not callback then
 			local info = ("entity '%s' (%s)"):format(caller:GetName(), caller:GetClass())
 			error(("no output function '%s' in mapLogic table of %s"):format(output, info))
 		end
 
-		func(caller, activator, value)
+		callback(caller, activator, value)
 		return true
 	end
 end
@@ -181,12 +176,12 @@ function ENT:OnRemove()
 end
 
 -- helper function to avoid copy-paste
-function ENT:TimerSimple(time, func)
+function ENT:TimerSimple(time, callback)
 	timer.Simple(
 		time,
 		function()
 			if IsValid(self) then
-				func(self)
+				callback(self)
 			end
 		end
 	)
@@ -194,14 +189,17 @@ end
 
 -- ====================================================================================================
 
-hook.Add(
-	"InitPostEntity",
-	"MapLogicSpawn",
-	function()
-		local ent = ents.Create("map_logic_controller")
-		ent:Spawn()
+local function Respawn()
+	for _, v in ipairs(ents.FindByClass("map_logic_controller")) do
+		v:Remove()
 	end
-)
+
+	local ent = ents.Create("map_logic_controller")
+	ent:Spawn()
+end
+
+hook.Add("InitPostEntity", "MapLogicSpawn", Respawn)
+hook.Add("PostCleanupMap", "MapLogicSpawn", Respawn)
 
 concommand.Add(
 	"map_logic_reset",
@@ -210,12 +208,7 @@ concommand.Add(
 			return
 		end
 
-		for _, v in ipairs(ents.FindByClass("map_logic_controller")) do
-			v:Remove()
-		end
-
-		local ent = ents.Create("map_logic_controller")
-		ent:Spawn()
+		Respawn()
 	end,
 	nil,
 	"Removes the old controller and creates a new one. Forces the entire map logic to be initialized again."
