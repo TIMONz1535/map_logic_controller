@@ -6,8 +6,6 @@
 
 local proxies = {}
 
--- TODO: Add GetMapCreatedEntity for entity list, and AcceptInputProxy meta
--- TODO: Add AddOutput meta, add remove output (supress outputs)
 local function AcceptInputProxy(target, input, callback)
 	for _, v in ipairs(target) do
 		local idx = v:EntIndex()
@@ -76,6 +74,15 @@ local function Init(controller, mapName)
 		end
 	end
 
+	-- prevents players ragdolls teleportation
+	local filter = ents.Create("filter_activator_class")
+	filter:SetKeyValue("filterclass", "prop_ragdoll")
+	filter:SetKeyValue("negated", "1")
+	filter:Spawn()
+	controller:DeleteOnRemove(filter)
+	local nexus_ga_teleport = controller:GetMetaTarget("letters_teleport")
+	nexus_ga_teleport:SetSaveValue("m_hFilter", filter)
+
 	local nexus_comend = controller:GetMetaTarget("nexus_curfew")
 	local nexus_kk = controller:GetMetaTarget("nexus_lockdowndeactivate")
 	local nexus_judgement = controller:GetMetaTarget("nexus_judeactivate")
@@ -138,9 +145,9 @@ local function Init(controller, mapName)
 	nexus_gate.OnOut = GenLog("[MapLogic] %s закрыл Южные ворота.")
 	cwu_button.OnPressed = GenLog("[MapLogic] %s активировал оповещение Офиса ГСР!")
 
-	-- make func_door usable, otherwise it will be permanently opened by Combines
+	-- make the func_door usable, otherwise it will be permanently opened by Combines
 	ration_button:SetKeyValue("spawnflags", 292)
-	-- fix wait delay of func_door
+	-- fix wait delay of the toggled func_door
 	ration_button.OnClose = function(ent, activator)
 		ent:Fire("Lock")
 		GenLog("[MapLogic] %s активировал оповещение Выдачи Рационов!")(ent, activator)
