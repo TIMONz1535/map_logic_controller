@@ -202,7 +202,7 @@ hook.Add("InitPostEntity", "MapLogicSpawn", Respawn)
 hook.Add("PostCleanupMap", "MapLogicSpawn", Respawn)
 
 concommand.Add(
-	"map_logic_reset",
+	"map_logic_reload",
 	function(ply)
 		if IsValid(ply) and not ply:IsSuperAdmin() then
 			return
