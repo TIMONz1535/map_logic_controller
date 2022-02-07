@@ -2,7 +2,7 @@
 	© 2021 PostBellum HL2 RP
 	Author: TIMON_Z1535 - https://steamcommunity.com/profiles/76561198047725014
 --]]
--- luacheck: globals hook Clockwork LOGTYPE_URGENT cwCPPlug ents IsValid Schema
+-- luacheck: globals hook Clockwork LOGTYPE_URGENT cwCPPlug ents IsValid Schema CurTime
 -- luacheck: globals FACTION_ADMIN FACTION_SCIENT FACTION_CWU FACTION_CWUMEDIC FACTION_CWUBOSS
 
 local proxies = {}
@@ -36,13 +36,19 @@ local function RestrictionProxy(ent, input, activator, caller, value)
 			return
 		end
 
+		-- TODO: Can be removed in the future
 		if Schema:IsUntrusted(activator) then
-			Schema:PlayerAlertOrBan(
-				activator,
-				"пытается нажать защищенную кнопку, но не имеет Вайтлистов!",
-				"Багоюз, до разбирательств."
-			)
+			if not activator.nextAlert or activator.nextAlert < CurTime() then
+				activator.nextAlert = CurTime() + 1
+
+				Schema:PlayerAlertOrBan(
+					activator,
+					"пытается нажать защищенную кнопку Альянса, но не имеет Вайтлистов!",
+					"Багоюз, до разбирательств."
+				)
+			end
 		end
+
 		return true
 	end
 end
@@ -54,13 +60,19 @@ local function RestrictionProxyCWU(ent, input, activator, caller, value)
 			return
 		end
 
+		-- TODO: Can be removed in the future
 		if Schema:IsUntrusted(activator) then
-			Schema:PlayerAlertOrBan(
-				activator,
-				"пытается нажать защищенную кнопку ГСР, но не имеет Вайтлистов!",
-				"Багоюз, до разбирательств."
-			)
+			if not activator.nextAlert or activator.nextAlert < CurTime() then
+				activator.nextAlert = CurTime() + 1
+
+				Schema:PlayerAlertOrBan(
+					activator,
+					"пытается нажать защищенную кнопку ГСР, но не имеет Вайтлистов!",
+					"Багоюз, до разбирательств."
+				)
+			end
 		end
+
 		return true
 	end
 end
