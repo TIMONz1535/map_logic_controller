@@ -2,7 +2,8 @@
 	© 2021 PostBellum HL2 RP
 	Author: TIMON_Z1535 - https://steamcommunity.com/profiles/76561198047725014
 --]]
--- luacheck: globals hook Clockwork LOGTYPE_URGENT cwCPPlug ents IsValid FACTION_MPF FACTION_ADMIN FACTION_INCOG
+-- luacheck: globals hook Clockwork LOGTYPE_URGENT cwCPPlug ents IsValid Schema
+-- luacheck: globals FACTION_ADMIN FACTION_SCIENT FACTION_CWU FACTION_CWUMEDIC FACTION_CWUBOSS
 
 local proxies = {}
 
@@ -31,21 +32,35 @@ hook.Add(
 local function RestrictionProxy(ent, input, activator, caller, value)
 	if IsValid(activator) and activator:IsPlayer() then
 		local faction = activator:GetFaction()
-		if faction == FACTION_MPF or faction == FACTION_ADMIN or faction == FACTION_INCOG then
+		if Schema:IsCombineFaction(faction) or faction == FACTION_ADMIN or faction == FACTION_SCIENT then
 			return
 		end
 
-		local whitelisted = activator:GetData("Whitelisted")
-		if not whitelisted or #whitelisted == 0 then
-			activator:Ban(
-				0,
-				"Багоюз, до разбирательств.",
-				function(name, duration, reason)
-					Clockwork.player:NotifyAll("Console: '" .. name .. "' has been banned permanently (" .. reason .. ").")
-				end
+		if Schema:IsUntrusted(activator) then
+			Schema:PlayerAlertOrBan(
+				activator,
+				"пытается нажать защищенную кнопку, но не имеет Вайтлистов!",
+				"Багоюз, до разбирательств."
 			)
 		end
+		return true
+	end
+end
 
+local function RestrictionProxyCWU(ent, input, activator, caller, value)
+	if IsValid(activator) and activator:IsPlayer() then
+		local faction = activator:GetFaction()
+		if faction == FACTION_CWU or faction == FACTION_CWUMEDIC or faction == FACTION_CWUBOSS then
+			return
+		end
+
+		if Schema:IsUntrusted(activator) then
+			Schema:PlayerAlertOrBan(
+				activator,
+				"пытается нажать защищенную кнопку ГСР, но не имеет Вайтлистов!",
+				"Багоюз, до разбирательств."
+			)
+		end
 		return true
 	end
 end
@@ -113,7 +128,7 @@ local function Init(controller, mapName)
 	AcceptInputProxy(nexus_kk, "Use", RestrictionProxy)
 	AcceptInputProxy(nexus_judgement, "Use", RestrictionProxy)
 	AcceptInputProxy(nexus_gate, "Use", RestrictionProxy)
-	AcceptInputProxy(cwu_button, "Use", RestrictionProxy)
+	AcceptInputProxy(cwu_button, "Use", RestrictionProxyCWU)
 	AcceptInputProxy(ration_button, "Use", RestrictionProxy)
 
 	AcceptInputProxy(nexus_kpp1, "Use", RestrictionProxy)
