@@ -56,6 +56,9 @@ end
 local function RestrictionProxyCWU(ent, input, activator, caller, value)
 	if IsValid(activator) and activator:IsPlayer() then
 		local faction = activator:GetFaction()
+		if Schema:IsCombineFaction(faction) or faction == FACTION_ADMIN or faction == FACTION_SCIENT then
+			return
+		end
 		if faction == FACTION_CWU or faction == FACTION_CWUMEDIC or faction == FACTION_CWUBOSS then
 			return
 		end
