@@ -80,7 +80,7 @@ local function RestrictionProxyCWU(ent, input, activator, caller, value)
 	end
 end
 
-local function GenLog(message)
+local function LogCallback(message)
 	return function(ent, activator)
 		local name = activator:IsPlayer() and ("Игрок " .. activator:Name()) or ("Нечто " .. tostring(activator))
 		local text = message:format(name)
@@ -165,22 +165,22 @@ local function Init(controller, mapName)
 	AcceptInputProxy(kpp3_2, "Use", RestrictionProxy)
 	AcceptInputProxy(kpp3_3, "Use", RestrictionProxy)
 
-	nexus_comend.OnIn = GenLog("[MapLogic] %s активировал Комендатский час!")
-	nexus_comend.OnOut = GenLog("[MapLogic] %s выключил Комендатский час.")
-	nexus_kk.OnIn = GenLog("[MapLogic] %s активировал Красный код!")
-	nexus_kk.OnOut = GenLog("[MapLogic] %s выключил Красный код.")
-	nexus_judgement.OnIn = GenLog("[MapLogic] %s активировал Судебное разбирательство отменено!")
-	nexus_judgement.OnOut = GenLog("[MapLogic] %s выключил Судебное разбирательство отменено.")
-	nexus_gate.OnIn = GenLog("[MapLogic] %s открыл Южные ворота!")
-	nexus_gate.OnOut = GenLog("[MapLogic] %s закрыл Южные ворота.")
-	cwu_button.OnPressed = GenLog("[MapLogic] %s активировал оповещение Офиса ГСР!")
+	nexus_comend.OnIn = LogCallback("[MapLogic] %s активировал Комендатский час!")
+	nexus_comend.OnOut = LogCallback("[MapLogic] %s выключил Комендатский час.")
+	nexus_kk.OnIn = LogCallback("[MapLogic] %s активировал Красный код!")
+	nexus_kk.OnOut = LogCallback("[MapLogic] %s выключил Красный код.")
+	nexus_judgement.OnIn = LogCallback("[MapLogic] %s активировал Судебное разбирательство отменено!")
+	nexus_judgement.OnOut = LogCallback("[MapLogic] %s выключил Судебное разбирательство отменено.")
+	nexus_gate.OnIn = LogCallback("[MapLogic] %s открыл Южные ворота!")
+	nexus_gate.OnOut = LogCallback("[MapLogic] %s закрыл Южные ворота.")
+	cwu_button.OnPressed = LogCallback("[MapLogic] %s активировал оповещение Офиса ГСР!")
 
 	-- make the func_door usable, otherwise it will be permanently opened by Combines
 	ration_button:SetKeyValue("spawnflags", 292)
 	-- fix wait delay of the toggled func_door
 	ration_button.OnClose = function(ent, activator)
 		ent:Fire("Lock")
-		GenLog("[MapLogic] %s активировал оповещение Выдачи Рационов!")(ent, activator)
+		LogCallback("[MapLogic] %s активировал оповещение Выдачи Рационов!")(ent, activator)
 		controller:TimerSimple(
 			60,
 			function()
@@ -190,7 +190,7 @@ local function Init(controller, mapName)
 	end
 	ration_button.OnOpen = function(ent, activator)
 		ent:Fire("Lock")
-		GenLog("[MapLogic] %s выключил оповещение Выдачи Рационов.")(ent, activator)
+		LogCallback("[MapLogic] %s выключил оповещение Выдачи Рационов.")(ent, activator)
 		controller:TimerSimple(
 			60,
 			function()
