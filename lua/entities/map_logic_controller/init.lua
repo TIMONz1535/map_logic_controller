@@ -102,9 +102,13 @@ function ENT:GetMetaTarget(name)
 	if isstring(name) then
 		assert(self.cache, ("no cache in controller, can't get MetaTarget for '%s'"):format(name))
 		entities = self.cache[name] or {}
+	elseif istable(name) then
+		entities = name
+		-- need to check all names, but it will be expensive
+		name = name[1] and name[1]:GetName()
 	else
 		entities = {name}
-		name = name:GetName()
+		name = name and name:GetName()
 	end
 
 	self.statsEntities = self.statsEntities + #entities
@@ -176,12 +180,27 @@ function ENT:OnRemove()
 end
 
 -- helper function to avoid copy-paste
-function ENT:TimerSimple(time, callback)
+function ENT:TimerSimple(delay, callback)
 	timer.Simple(
-		time,
+		delay,
 		function()
 			if IsValid(self) then
 				callback(self)
+			end
+		end
+	)
+end
+
+function ENT:TimerCreate(identifier, delay, repetitions, callback)
+	timer.Create(
+		identifier,
+		delay,
+		repetitions,
+		function()
+			if IsValid(self) then
+				callback(self)
+			else
+				timer.Remove(identifier)
 			end
 		end
 	)
