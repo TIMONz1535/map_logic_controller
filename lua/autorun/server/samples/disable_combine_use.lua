@@ -2,9 +2,11 @@
 
 local ENTITY = FindMetaTable("Entity")
 
--- You can directly change this function in your gamemode to disable the doors for Combines.
-function ENTITY:DisableCombineUse()
-	hook.Run("EntityDisableCombineUse", self)
+if not ENTITY.DisableCombineUse then
+	-- You can directly change this function in your gamemode to disable the doors for Combines.
+	function ENTITY:DisableCombineUse()
+		hook.Run("EntityDisableCombineUse", self)
+	end
 end
 
 -- If you don't want to unpack the addon, just use this hook.
