@@ -65,7 +65,7 @@ local function Init(controller, mapName)
 		gate:Fire("SetAnimation", "open", 1.5)
 		util.ScreenShake(elevator[1]:GetPos(), 3, 1.5, 1, 80)
 
-		timer.Simple(
+		controller:TimerSimple(
 			1.5 + buttonDelay,
 			function()
 				isMoving = false

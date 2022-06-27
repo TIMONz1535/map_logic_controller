@@ -70,7 +70,7 @@ local function Init(controller, mapName)
 		doors[floor]:Fire("Open", nil, 1)
 		util.ScreenShake(elevator[1]:GetPos(), 2, 1.5, 1, 80)
 
-		timer.Simple(
+		controller:TimerSimple(
 			1.5 + buttonDelay,
 			function()
 				isMoving = false

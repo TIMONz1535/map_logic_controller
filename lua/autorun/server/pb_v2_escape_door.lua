@@ -1,17 +1,17 @@
 -- luacheck: globals timer MAP_CONTROLLER_FUNC
 
-local function Init(self, mapName)
+local function Init(controller, mapName)
 	if mapName ~= "rp_pb_industrial17_v2" then
 		return
 	end
 
 	local buttonDelay = 5
-	local light = self:GetMetaTarget("secret_light1")
-	local lamp = self:GetMetaTarget("secret_light1_models")
-	local level1 = self:GetMetaTarget("secret_button_01")
-	local level2 = self:GetMetaTarget("secret_button_02")
-	local button = self:GetMetaTarget("secret_button_03")
-	local door = self:GetMetaTarget("secret_door_01")
+	local light = controller:GetMetaTarget("secret_light1")
+	local lamp = controller:GetMetaTarget("secret_light1_models")
+	local level1 = controller:GetMetaTarget("secret_button_01")
+	local level2 = controller:GetMetaTarget("secret_button_02")
+	local button = controller:GetMetaTarget("secret_button_03")
+	local door = controller:GetMetaTarget("secret_door_01")
 
 	level1:SetKeyValue("wait", buttonDelay)
 	level2:SetKeyValue("wait", buttonDelay)
@@ -24,7 +24,7 @@ local function Init(self, mapName)
 
 	level1.OnOpen = function(ent, activator)
 		isPressed1 = true
-		timer.Simple(
+		controller:TimerSimple(
 			0.5,
 			function()
 				if not isPressed1 then
@@ -51,7 +51,7 @@ local function Init(self, mapName)
 	end
 	level2.OnOpen = function(ent, activator)
 		isPressed2 = true
-		timer.Simple(
+		controller:TimerSimple(
 			0.5,
 			function()
 				if not isPressed2 then
