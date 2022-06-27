@@ -1,4 +1,4 @@
--- luacheck: globals timer MAP_CONTROLLER_FUNC
+-- © 2022 PostBellum HL2 RP. All rights reserved.
 
 local function Init(controller, mapName)
 	if mapName ~= "rp_pb_industrial17_v2" then

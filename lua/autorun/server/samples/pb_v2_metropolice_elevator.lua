@@ -1,8 +1,4 @@
---[[
-	© 2021 PostBellum HL2 RP
-	Author: TIMON_Z1535 - https://steamcommunity.com/profiles/76561198047725014
---]]
--- luacheck: globals hook timer util CreateSound IsValid
+-- © 2022 PostBellum HL2 RP. All rights reserved.
 
 hook.Add(
 	"PlayerSay",

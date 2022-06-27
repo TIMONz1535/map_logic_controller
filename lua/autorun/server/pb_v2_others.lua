@@ -1,9 +1,4 @@
---[[
-	© 2021 PostBellum HL2 RP
-	Author: TIMON_Z1535 - https://steamcommunity.com/profiles/76561198047725014
---]]
--- luacheck: globals hook Clockwork LOGTYPE_URGENT cwCPPlug ents IsValid Schema CurTime
--- luacheck: globals FACTION_ADMIN FACTION_SCIENT FACTION_CWU FACTION_CWUMEDIC FACTION_CWUBOSS
+-- © 2022 PostBellum HL2 RP. All rights reserved.
 
 local proxies = {}
 

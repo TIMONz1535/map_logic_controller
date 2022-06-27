@@ -1,8 +1,4 @@
---[[
-	© 2021 PostBellum HL2 RP
-	Author: TIMON_Z1535 - https://steamcommunity.com/profiles/76561198047725014
---]]
--- luacheck: globals hook timer util
+-- © 2022 PostBellum HL2 RP. All rights reserved.
 
 local function Init(controller, mapName)
 	if mapName ~= "rp_pb_industrial17_v2" then
