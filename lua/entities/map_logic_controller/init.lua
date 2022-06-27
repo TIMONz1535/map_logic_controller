@@ -8,7 +8,10 @@
 -- luacheck: globals ENT IsValid isnumber isfunction isstring istable ents timer game engine hook
 -- luacheck: globals MsgN CreateConVar concommand FCVAR_NONE SysTime
 
-local META_TARGET = {}
+local META_TARGET = {
+	nextOutputDelay = 0,
+	nextOutputRepetitions = -1
+}
 
 -- Redirect the function call to internal entities.
 META_TARGET.__index = function(self, key)
@@ -53,11 +56,20 @@ META_TARGET.__newindex = function(self, output, callback)
 					"AddOutput",
 					self.controller,
 					self.controller,
-					("%s %s:__%s::0:-1"):format(output, self.controller:GetName(), output)
+					("%s %s:__%s::%s:%s"):format(
+						output,
+						self.controller:GetName(),
+						output,
+						self.nextOutputDelay,
+						self.nextOutputRepetitions
+					)
 				)
 			end
 		end
 	end
+
+	self.nextOutputDelay = 0
+	self.nextOutputRepetitions = -1
 end
 
 -- generates a unique id even if you call many times per second
