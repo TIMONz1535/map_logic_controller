@@ -19,7 +19,7 @@ META_TARGET.__index = function(self, key)
 		return
 	end
 
-	assert(#self ~= 0, ("no entities with name '%s', can't redirect method '%s'"):format(self.name, key))
+	assert(#self > 0, ("no entities with name '%s', can't redirect method '%s'"):format(self.name, key))
 
 	return function(_, ...)
 		for _, v in ipairs(self) do
@@ -36,7 +36,7 @@ end
 
 -- Add output to internal entities that will be called on Lua-side by the controller.
 META_TARGET.__newindex = function(self, output, callback)
-	assert(#self ~= 0, ("no entities with name '%s', can't add output '%s'"):format(self.name, output))
+	assert(#self > 0, ("no entities with name '%s', can't add output '%s'"):format(self.name, output))
 	assert(IsValid(self.controller), ("invalid controller, can't add output '%s' for '%s'"):format(output, self.name))
 
 	for _, v in ipairs(self) do
@@ -70,6 +70,14 @@ META_TARGET.__newindex = function(self, output, callback)
 
 	self.nextOutputDelay = 0
 	self.nextOutputRepetitions = -1
+end
+
+META_TARGET.IsValid = function(self)
+	local anyIsValid = false
+	for _, v in ipairs(self) do
+		anyIsValid = IsValid(v) or anyIsValid
+	end
+	return anyIsValid and IsValid(self.controller)
 end
 
 -- generates a unique id even if you call many times per second
