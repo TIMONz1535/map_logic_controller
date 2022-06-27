@@ -1,13 +1,10 @@
---[[
-	© 2021 PostBellum HL2 RP
-	Author: TIMON_Z1535 - https://steamcommunity.com/profiles/76561198047725014
+-- © 2022 PostBellum HL2 RP. All rights reserved.
 
+--[[
+	Author: TIMON_Z1535 - https://steamcommunity.com/profiles/76561198047725014
 	Repository: https://github.com/TIMONz1535/map_logic_controller
 	Wiki: https://github.com/TIMONz1535/map_logic_controller/wiki
 --]]
--- luacheck: globals ENT IsValid isnumber isfunction isstring istable ents timer game engine hook
--- luacheck: globals MsgN CreateConVar concommand FCVAR_NONE SysTime
-
 local META_TARGET = {
 	nextOutputDelay = 0,
 	nextOutputRepetitions = -1
