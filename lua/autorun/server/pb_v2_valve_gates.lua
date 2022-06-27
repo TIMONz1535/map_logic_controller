@@ -1,14 +1,14 @@
 -- luacheck: globals timer MAP_CONTROLLER_FUNC
 
-local function Init(self, mapName)
+local function Init(controller, mapName)
 	if mapName ~= "rp_pb_industrial17_v2" then
 		return
 	end
 
 	do
-		local valve1 = self:GetMetaTarget("gate1_wheel")
-		local valve2 = self:GetMetaTarget("gate1_wheel2")
-		local move = self:GetMetaTarget("door_lock1")
+		local valve1 = controller:GetMetaTarget("gate1_wheel")
+		local valve2 = controller:GetMetaTarget("gate1_wheel2")
+		local move = controller:GetMetaTarget("door_lock1")
 
 		valve1.Position = function(ent, activator, value)
 			move:Fire("SetPosition", value)
@@ -30,9 +30,9 @@ local function Init(self, mapName)
 		end
 	end
 	do
-		local valve1 = self:GetMetaTarget("gate3_wheel")
-		local valve2 = self:GetMetaTarget("gate3_wheel2")
-		local move = self:GetMetaTarget("door_lock2_2")
+		local valve1 = controller:GetMetaTarget("gate3_wheel")
+		local valve2 = controller:GetMetaTarget("gate3_wheel2")
+		local move = controller:GetMetaTarget("door_lock2_2")
 
 		valve1.Position = function(ent, activator, value)
 			move:Fire("SetPosition", value)

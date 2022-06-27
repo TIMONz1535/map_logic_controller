@@ -1,20 +1,20 @@
 -- luacheck: globals timer MAP_CONTROLLER_FUNC
 
-local function Init(self, mapName)
+local function Init(controller, mapName)
 	if mapName ~= "rp_pb_industrial17_v2" then
 		return
 	end
 
-	local box1 = self:GetMetaTarget("secret_box1")
-	local box2 = self:GetMetaTarget("secret_box2")
-	local box3 = self:GetMetaTarget("secret_box3")
-	local rebel_door = self:GetMetaTarget("sewer_secretdoor")
-	local cinema1 = self:GetMetaTarget("sewer_secretdoor2")
-	local cinema2 = self:GetMetaTarget("sewer_secretdoor3")
-	local toiler_door = self:GetMetaTarget("grizzly_secretdoor")
-	local metropol_door = self:GetMetaTarget("slums_secretdoor2")
-	local metropol_window = self:GetMetaTarget("slums_secretdoor3")
-	local puzzle_door = self:GetMetaTarget("grizzly_sewerdoor")
+	local box1 = controller:GetMetaTarget("secret_box1")
+	local box2 = controller:GetMetaTarget("secret_box2")
+	local box3 = controller:GetMetaTarget("secret_box3")
+	local rebel_door = controller:GetMetaTarget("sewer_secretdoor")
+	local cinema1 = controller:GetMetaTarget("sewer_secretdoor2")
+	local cinema2 = controller:GetMetaTarget("sewer_secretdoor3")
+	local toiler_door = controller:GetMetaTarget("grizzly_secretdoor")
+	local metropol_door = controller:GetMetaTarget("slums_secretdoor2")
+	local metropol_window = controller:GetMetaTarget("slums_secretdoor3")
+	local puzzle_door = controller:GetMetaTarget("grizzly_sewerdoor")
 
 	box1:DisableCombineUse()
 	box2:DisableCombineUse()

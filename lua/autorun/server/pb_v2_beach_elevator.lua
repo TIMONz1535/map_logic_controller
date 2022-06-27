@@ -61,7 +61,7 @@ local function Init(controller, mapName)
 		elevator:Fire("Stop")
 		util.ScreenShake(elevator[1]:GetPos(), 2, 1.5, 1, 180)
 
-		timer.Simple(
+		controller:TimerSimple(
 			1.5 + buttonDelay,
 			function()
 				isMoving = false
