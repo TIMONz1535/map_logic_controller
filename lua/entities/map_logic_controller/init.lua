@@ -44,7 +44,9 @@ META_TARGET.__newindex = function(self, output, callback)
 
 			-- Don't call another AddOutput if we're just overriding a Lua function.
 			if not prevFunc then
-				self.controller.statsOutputs = self.controller.statsOutputs + 1
+				if self.controller.statsOutputs then
+					self.controller.statsOutputs = self.controller.statsOutputs + 1
+				end
 
 				-- To support the generated output values (like Position), leave the 'parameter' empty.
 				v:Input(
@@ -105,13 +107,15 @@ function ENT:GetMetaTarget(name)
 	elseif istable(name) then
 		entities = name
 		-- need to check all names, but it will be expensive
-		name = name[1] and name[1]:GetName()
+		name = name[1] and name[1]:GetName() or nil
 	else
 		entities = {name}
-		name = name and name:GetName()
+		name = name and name:GetName() or nil
 	end
 
-	self.statsEntities = self.statsEntities + #entities
+	if self.statsEntities then
+		self.statsEntities = self.statsEntities + #entities
+	end
 
 	entities.name = name
 	entities.controller = self
