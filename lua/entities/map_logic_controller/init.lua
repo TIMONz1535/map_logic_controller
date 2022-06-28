@@ -5,15 +5,22 @@
 	Repository: https://github.com/TIMONz1535/map_logic_controller
 	Wiki: https://github.com/TIMONz1535/map_logic_controller/wiki
 --]]
-local META_TARGET = {
-	nextOutputDelay = 0,
-	nextOutputRepetitions = -1
-}
+---@class MetaTarget
+---@field name string
+---@field controller Entity
+---@field nextOutputDelay number
+---@field nextOutputRepetitions number
+local META_TARGET = {}
 
 -- Redirect the function call to internal entities.
 META_TARGET.__index = function(self, key)
 	if isnumber(key) then
 		return
+	end
+
+	local value = META_TARGET[key]
+	if value ~= nil then
+		return value
 	end
 
 	assert(#self > 0, ("no entities with name '%s', can't redirect method '%s'"):format(self.name, key))
@@ -69,7 +76,7 @@ META_TARGET.__newindex = function(self, output, callback)
 	self.nextOutputRepetitions = -1
 end
 
-META_TARGET.IsValid = function(self)
+function META_TARGET:IsValid()
 	local anyIsValid = false
 	for _, v in ipairs(self) do
 		anyIsValid = IsValid(v) or anyIsValid
@@ -116,26 +123,31 @@ function ENT:AcceptInput(input, activator, caller, value)
 	end
 end
 
+---@return MetaTarget
 function ENT:GetMetaTarget(name)
 	local entities
 	if isstring(name) then
 		assert(self.cache, ("no cache in controller, can't get MetaTarget for '%s'"):format(name))
 		entities = self.cache[name] or {}
 	elseif istable(name) then
+		-- it's funny, if we pass a MetaTarget, we will get it itself
 		entities = name
-		-- need to check all names, but it will be expensive
-		name = name[1] and name[1]:GetName() or nil
+		-- name doesn't really matter
+		name = name[1] and name[1]:GetName()
 	else
 		entities = {name}
-		name = name and name:GetName() or nil
+		name = name and name:GetName()
 	end
 
 	if self.statsEntities then
 		self.statsEntities = self.statsEntities + #entities
 	end
 
-	entities.name = name
+	-- it is impossible to allow these fields to be nil, otherwise meta will be called!
+	entities.name = name or ""
 	entities.controller = self
+	entities.nextOutputDelay = 0
+	entities.nextOutputRepetitions = -1
 	return setmetatable(entities, META_TARGET)
 end
 
