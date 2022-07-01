@@ -65,9 +65,10 @@ META_TARGET.__newindex = function(self, output, callback)
 					"AddOutput",
 					self.controller,
 					self.controller,
-					("%s %s:__%s__%s::%s:%s"):format(
+					("%s %s:__%s_%s_%s::%s:%s"):format(
 						output,
 						self.controller:GetName(),
+						v:EntIndex(),
 						output,
 						self.nextOutputId,
 						self.nextOutputDelay,
@@ -108,27 +109,26 @@ ENT.Type = "point"
 
 function ENT:AcceptInput(input, activator, caller, value)
 	if input:sub(1, 2) == "__" then
-		local output, id = input:match("__(.+)__(%d+)")
+		local idx, output, id = input:match("^__(%d+)_(.+)_(%d+)$")
+		local ent = Entity(tonumber(idx))
 		id = tonumber(id)
 
-		-- currently there is no way to determine who is calling output
-		assert(IsValid(caller), ("invalid caller for output '%s'"):format(output))
-		assert(not caller:IsPlayer(), ("engine returns Player as caller for output '%s'"):format(output))
+		assert(IsValid(ent), ("invalid entity '%s' that is calling output '%s'"):format(idx, output))
 
-		local outputs = caller.mapLogic and caller.mapLogic[output]
+		local outputs = ent.mapLogic and ent.mapLogic[output]
 		if not outputs then
-			local info = ("entity '%s' (%s)"):format(caller:GetName(), caller:GetClass())
+			local info = ("entity '%s' (%s)"):format(ent:GetName(), ent:GetClass())
 			error(("no mapLogic table in %s for calling the Lua-side output '%s'"):format(info, output))
 		end
 
 		local callback = outputs[id]
 		if callback then
-			callback(caller, activator, value)
+			callback(ent, activator, caller, value)
 		else
 			-- check only for MetaTargets that cannot be deleted
 			if id == 0 then
-				local info = ("entity '%s' (%s)"):format(caller:GetName(), caller:GetClass())
-				error(("no output function '%s' in mapLogic table of %s"):format(output, info))
+				local info = ("entity '%s' (%s)"):format(ent:GetName(), ent:GetClass())
+				error(("no output callback '%s' in mapLogic table of %s"):format(output, info))
 			end
 		end
 
