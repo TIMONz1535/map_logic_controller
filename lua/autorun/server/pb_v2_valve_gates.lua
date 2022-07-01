@@ -10,10 +10,10 @@ local function Init(controller, mapName)
 		local valve2 = controller:GetMetaTarget("gate1_wheel2")
 		local move = controller:GetMetaTarget("door_lock1")
 
-		valve1.Position = function(ent, activator, value)
+		valve1.Position = function(ent, activator, caller, value)
 			move:Fire("SetPosition", value)
 		end
-		valve2.Position = function(ent, activator, value)
+		valve2.Position = function(ent, activator, caller, value)
 			move:Fire("SetPosition", value)
 		end
 
@@ -34,10 +34,10 @@ local function Init(controller, mapName)
 		local valve2 = controller:GetMetaTarget("gate3_wheel2")
 		local move = controller:GetMetaTarget("door_lock2_2")
 
-		valve1.Position = function(ent, activator, value)
+		valve1.Position = function(ent, activator, caller, value)
 			move:Fire("SetPosition", value)
 		end
-		valve2.Position = function(ent, activator, value)
+		valve2.Position = function(ent, activator, caller, value)
 			move:Fire("SetPosition", value)
 		end
 
