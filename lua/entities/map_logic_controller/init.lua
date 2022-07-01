@@ -8,8 +8,9 @@
 ---@class MetaTarget
 ---@field name string
 ---@field controller Entity
+---@field nextOutputId integer
 ---@field nextOutputDelay number
----@field nextOutputRepetitions number
+---@field nextOutputRepetitions integer
 local META_TARGET = {}
 
 -- Redirect the function call to internal entities.
@@ -46,11 +47,15 @@ META_TARGET.__newindex = function(self, output, callback)
 	for _, v in ipairs(self) do
 		if IsValid(v) then
 			v.mapLogic = v.mapLogic or {}
-			local prevFunc = v.mapLogic[output]
-			v.mapLogic[output] = callback
+
+			local outputs = v.mapLogic[output] or {_length = 0}
+			v.mapLogic[output] = outputs
+
+			local prevCallback = outputs[self.nextOutputId]
+			outputs[self.nextOutputId] = callback
 
 			-- Don't call another AddOutput if we're just overriding a Lua function.
-			if not prevFunc then
+			if not prevCallback then
 				if self.controller.statsOutputs then
 					self.controller.statsOutputs = self.controller.statsOutputs + 1
 				end
@@ -60,10 +65,11 @@ META_TARGET.__newindex = function(self, output, callback)
 					"AddOutput",
 					self.controller,
 					self.controller,
-					("%s %s:__%s::%s:%s"):format(
+					("%s %s:__%s__%s::%s:%s"):format(
 						output,
 						self.controller:GetName(),
 						output,
+						self.nextOutputId,
 						self.nextOutputDelay,
 						self.nextOutputRepetitions
 					)
@@ -72,6 +78,7 @@ META_TARGET.__newindex = function(self, output, callback)
 		end
 	end
 
+	self.nextOutputId = 0
 	self.nextOutputDelay = 0
 	self.nextOutputRepetitions = -1
 end
@@ -84,7 +91,7 @@ function META_TARGET:IsValid()
 	return anyIsValid and IsValid(self.controller)
 end
 
--- generates a unique id even if you call many times per second
+-- Generates a unique id even if you call many times per second.
 local lastId = 0
 local function GenerateSysId()
 	lastId = math.max(lastId + 1, math.floor(SysTime()))
@@ -101,24 +108,30 @@ ENT.Type = "point"
 
 function ENT:AcceptInput(input, activator, caller, value)
 	if input:sub(1, 2) == "__" then
-		local output = input:sub(3)
+		local output, id = input:match("__(.+)__(%d+)")
+		id = tonumber(id)
 
 		-- currently there is no way to determine who is calling output
 		assert(IsValid(caller), ("invalid caller for output '%s'"):format(output))
 		assert(not caller:IsPlayer(), ("engine returns Player as caller for output '%s'"):format(output))
 
-		if not istable(caller.mapLogic) then
+		local outputs = caller.mapLogic and caller.mapLogic[output]
+		if not outputs then
 			local info = ("entity '%s' (%s)"):format(caller:GetName(), caller:GetClass())
 			error(("no mapLogic table in %s for calling the Lua-side output '%s'"):format(info, output))
 		end
 
-		local callback = caller.mapLogic[output]
-		if not callback then
-			local info = ("entity '%s' (%s)"):format(caller:GetName(), caller:GetClass())
-			error(("no output function '%s' in mapLogic table of %s"):format(output, info))
+		local callback = outputs[id]
+		if callback then
+			callback(caller, activator, value)
+		else
+			-- check only for MetaTargets that cannot be deleted
+			if id == 0 then
+				local info = ("entity '%s' (%s)"):format(caller:GetName(), caller:GetClass())
+				error(("no output function '%s' in mapLogic table of %s"):format(output, info))
+			end
 		end
 
-		callback(caller, activator, value)
 		return true
 	end
 end
@@ -146,6 +159,7 @@ function ENT:GetMetaTarget(name)
 	-- it is impossible to allow these fields to be nil, otherwise meta will be called!
 	entities.name = name or ""
 	entities.controller = self
+	entities.nextOutputId = 0
 	entities.nextOutputDelay = 0
 	entities.nextOutputRepetitions = -1
 	return setmetatable(entities, META_TARGET)
@@ -212,33 +226,6 @@ function ENT:OnRemove()
 	end
 end
 
--- helper function to avoid copy-paste
-function ENT:TimerSimple(delay, callback)
-	timer.Simple(
-		delay,
-		function()
-			if IsValid(self) then
-				callback(self)
-			end
-		end
-	)
-end
-
-function ENT:TimerCreate(identifier, delay, repetitions, callback)
-	timer.Create(
-		identifier,
-		delay,
-		repetitions,
-		function()
-			if IsValid(self) then
-				callback(self)
-			else
-				timer.Remove(identifier)
-			end
-		end
-	)
-end
-
 -- ====================================================================================================
 
 local function Respawn()
@@ -265,3 +252,88 @@ concommand.Add(
 	nil,
 	"Removes the old controller and creates a new one. Forces the entire map logic to be initialized again."
 )
+
+-- ====================================================================================================
+
+local ENTITY = FindMetaTable("Entity")
+
+if not ENTITY.TimerSimple then
+	-- helper function to avoid copy-paste
+	function ENT:TimerSimple(delay, callback)
+		timer.Simple(
+			delay,
+			function()
+				if IsValid(self) then
+					callback(self)
+				end
+			end
+		)
+	end
+end
+
+if not ENTITY.TimerCreate then
+	function ENT:TimerCreate(identifier, delay, repetitions, callback)
+		timer.Create(
+			identifier,
+			delay,
+			repetitions,
+			function()
+				if IsValid(self) then
+					callback(self)
+				else
+					timer.Remove(identifier)
+				end
+			end
+		)
+	end
+end
+
+local controller
+local function AddOutputInternal(self, output, id, callback, delay, repetitions)
+	if not IsValid(controller) then
+		controller = ents.FindByClass("map_logic_controller")[1]
+		assert(IsValid(controller), ("invalid controller, can't add output '%s' for '%s'"):format(output, self))
+	end
+
+	local target = controller:GetMetaTarget(self)
+	-- it is impossible to allow these fields to be nil, otherwise meta will be called!
+	target.nextOutputId = id
+	target.nextOutputDelay = delay or 0
+	target.nextOutputRepetitions = repetitions or -1
+	target[output] = callback
+end
+
+function ENTITY:AddOutput(output, callback, delay, repetitions)
+	self.mapLogic = self.mapLogic or {}
+
+	local outputs = self.mapLogic[output] or {_length = 0}
+	self.mapLogic[output] = outputs
+
+	local id = outputs._length + 1
+	outputs._length = id
+
+	AddOutputInternal(self, output, id, callback, delay, repetitions)
+	return id
+end
+
+function ENTITY:RemoveOutput(output, id)
+	local outputs = self.mapLogic and self.mapLogic[output]
+	if not outputs then
+		return
+	end
+
+	outputs[id] = nil
+end
+
+function ENTITY:GetOutputs(output)
+	local outputs = self.mapLogic and self.mapLogic[output]
+	if not outputs then
+		return {}
+	end
+
+	local data = {}
+	for i = 1, outputs._length do
+		data[i] = outputs[i]
+	end
+	return data
+end
