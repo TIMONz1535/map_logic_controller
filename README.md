@@ -25,7 +25,7 @@ On Lua you can do anything, starting from simple prank, ending with major securi
 
 # For developers and server owners
 
-The controller is created at the map start, the logic is initialized by run the `OnMapLogicInitialized` hook. Developers can put their `.lua` scripts in an addon with a map or a separate addon.
+The controller is created at the map start and when the map is cleared, the logic is initialized by run the `OnMapLogicInitialized` hook. Developers can put their `.lua` scripts in an addon with a map or a separate addon.
 
 * Console command `map_logic_reload` - Removes the old controller and creates a new one. Forces the entire map logic to be initialized again. Please don't use this [too many times](https://github.com/TIMONz1535/map_logic_controller/wiki#a-few-simple-rules).
 
