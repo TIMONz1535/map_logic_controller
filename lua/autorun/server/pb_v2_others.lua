@@ -1,5 +1,16 @@
 -- © 2022 PostBellum HL2 RP. All rights reserved.
 
+-- fix of sound flooding, due to network lags
+hook.Add(
+	"AcceptInput",
+	"TrainSoundFix",
+	function(ent, input, activator, caller, value)
+		if input == "Stop" and ent:GetClass() == "func_tracktrain" then
+			ent:StopSound(ent:GetInternalVariable("m_iszSoundMove"))
+		end
+	end
+)
+
 local proxies = {}
 
 local function AcceptInputProxy(target, input, callback)
