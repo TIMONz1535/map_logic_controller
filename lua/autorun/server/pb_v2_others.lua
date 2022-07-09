@@ -87,9 +87,50 @@ local function LogCallback(message)
 	end
 end
 
+-- You can debug ladders with `developer 1; sv_showladders 1`.
+local dismounts = {
+	-- canals
+	Vector(-1940, 7120 + 16, -136),
+	Vector(-1940 - 8, 7120, -136),
+	Vector(-1940, 7120 - 16, -136),
+	Vector(-1884, 7120, 168)
+}
+
 local function Init(controller, mapName)
 	if mapName ~= "rp_pb_industrial17_v2" then
 		return
+	end
+
+	local ladder = ents.Create("func_useableladder")
+	ladder:SetPos(Vector(-1940, 7120, -120))
+	ladder:SetKeyValue("point0", "-1940 7120 -120")
+	ladder:SetKeyValue("point1", "-1940 7120 144")
+	ladder:Spawn()
+	controller:DeleteOnRemove(ladder)
+
+	-- Нет необходимости привязывать по имени, лестница при активации ищет их вокруг себя.
+	for _, v in ipairs(dismounts) do
+		local dismount = ents.Create("info_ladder_dismount")
+		dismount:SetPos(v)
+		dismount:Spawn()
+		controller:DeleteOnRemove(dismount)
+	end
+
+	ladder:Activate()
+
+	local ladderProp = ents.Create("prop_dynamic")
+	ladderProp:SetPos(Vector(-1920, 7120, -72))
+	ladderProp:SetAngles(Angle())
+	ladderProp:SetModel("models/props_c17/metalladder004.mdl")
+	ladderProp:SetSkin(1)
+	ladderProp:SetKeyValue("DisableBoneFollowers", 1)
+	ladderProp:SetKeyValue("solid", 6)
+	ladderProp:DrawShadow(false)
+	ladderProp:Spawn()
+	controller:DeleteOnRemove(ladderProp)
+	ladderProp.PhysgunDisabled = true
+	ladderProp.CanTool = function()
+		return false
 	end
 
 	local terms_no = controller:GetMetaTarget("start_button_no")
