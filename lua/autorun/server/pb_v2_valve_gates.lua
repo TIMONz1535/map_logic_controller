@@ -8,49 +8,36 @@ local function Init(controller, mapName)
 	do
 		local valve1 = controller:GetMetaTarget("gate1_wheel")
 		local valve2 = controller:GetMetaTarget("gate1_wheel2")
-		local move = controller:GetMetaTarget("door_lock1")
+		local gate = controller:GetMetaTarget("door_lock1")
+
+		local position1 = 0
+		local position2 = 0
 
 		valve1.Position = function(ent, activator, caller, value)
-			move:Fire("SetPosition", value)
+			position1 = value
+			gate:Fire("SetPosition", math.max(position1, position2))
 		end
 		valve2.Position = function(ent, activator, caller, value)
-			move:Fire("SetPosition", value)
-		end
-
-		valve1.OnPressed = function(ent, activator)
-			valve2:Fire("Lock")
-		end
-		valve2.OnPressed = function(ent, activator)
-			valve1:Fire("Lock")
-		end
-
-		move.OnFullyClosed = function(ent, activator)
-			valve1:Fire("Unlock", nil, 0.5)
-			valve2:Fire("Unlock", nil, 0.5)
+			position2 = value
+			gate:Fire("SetPosition", math.max(position1, position2))
 		end
 	end
+
 	do
 		local valve1 = controller:GetMetaTarget("gate3_wheel")
 		local valve2 = controller:GetMetaTarget("gate3_wheel2")
-		local move = controller:GetMetaTarget("door_lock2_2")
+		local gate = controller:GetMetaTarget("door_lock2_2")
+
+		local position1 = 0
+		local position2 = 0
 
 		valve1.Position = function(ent, activator, caller, value)
-			move:Fire("SetPosition", value)
+			position1 = value
+			gate:Fire("SetPosition", math.max(position1, position2))
 		end
 		valve2.Position = function(ent, activator, caller, value)
-			move:Fire("SetPosition", value)
-		end
-
-		valve1.OnPressed = function(ent, activator)
-			valve2:Fire("Lock")
-		end
-		valve2.OnPressed = function(ent, activator)
-			valve1:Fire("Lock")
-		end
-
-		move.OnFullyClosed = function(ent, activator)
-			valve1:Fire("Unlock", nil, 0.5)
-			valve2:Fire("Unlock", nil, 0.5)
+			position2 = value
+			gate:Fire("SetPosition", math.max(position1, position2))
 		end
 	end
 end
