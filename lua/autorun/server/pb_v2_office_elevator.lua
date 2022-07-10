@@ -38,6 +38,8 @@ local function Init(controller, mapName)
 	end
 	for _, v in ipairs(doors) do
 		v:DisableCombineUse()
+		v[2]:SetKeyValue("noise1", "")
+		v[2]:SetKeyValue("noise2", "")
 	end
 
 	gate:Fire("SetAnimation", "open")
