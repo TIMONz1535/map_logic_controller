@@ -27,11 +27,9 @@ local function Init(controller, mapName)
 	metropol_window:DisableCombineUse()
 	puzzle_door:DisableCombineUse()
 
-	-- remove secret button, because replaced with keypad
-	local button = ents.GetMapCreatedEntity(2339)
-	if IsValid(button) then
-		button:Remove()
-	end
+	-- remove secret buttons, because replaced with keypad
+	SafeRemoveEntity(ents.GetMapCreatedEntity(2339))
+	SafeRemoveEntity(ents.GetMapCreatedEntity(2396))
 end
 
 hook.Add("OnMapLogicInitialized", "pb_v2_secret_doors", Init)
