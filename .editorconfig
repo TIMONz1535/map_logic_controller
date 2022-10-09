@@ -1,0 +1,17 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+indent_style = tab
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# see https://github.com/CppCXY/EmmyLuaCodeStyle
+[*.lua]
+max_line_length = 125
+keep_one_space_between_table_and_bracket = false
+
+quote_style = double
+local_assign_continuation_align_to_first_expression = true
+keep_line_after_function_define_statement = keepLine

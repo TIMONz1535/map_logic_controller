@@ -2,10 +2,6 @@
 	"$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
 	"Lua.runtime.version": "LuaJIT",
 	"Lua.telemetry.enable": false,
-	"Lua.IntelliSense.traceBeSetted": true,
-	"Lua.IntelliSense.traceFieldInject": true,
-	"Lua.IntelliSense.traceLocalSet": true,
-	"Lua.IntelliSense.traceReturn": true,
 	"Lua.completion.requireSeparator": "/",
 	"Lua.diagnostics.severity": {
 		"lowercase-global": "Warning"
