@@ -28,13 +28,17 @@ META_TARGET.__index = function(self, key)
 
 	return function(_, ...)
 		for _, v in ipairs(self) do
-			if IsValid(v) then
-				if not isfunction(v[key]) then
-					local info = ("entity '%s' (%s)"):format(self.name, v:GetClass())
-					error(("%s doesn't have a method '%s'"):format(info, key))
-				end
-				v[key](v, ...)
+			if not IsValid(v) then
+				goto cont
 			end
+
+			if not isfunction(v[key]) then
+				local info = ("entity '%s' (%s)"):format(self.name, v:GetClass())
+				error(("%s doesn't have a method '%s'"):format(info, key))
+			end
+			v[key](v, ...)
+
+			::cont::
 		end
 	end
 end
@@ -43,43 +47,53 @@ end
 META_TARGET.__newindex = function(self, output, callback)
 	assert(#self > 0, ("no entities with name '%s', can't add output '%s'"):format(self.name, output))
 	assert(IsValid(self.controller), ("invalid controller, can't add output '%s' for '%s'"):format(output, self.name))
+	assert(
+		self.nextOutputId > 0,
+		("invalid nextOutputId '%s', can't add output '%s' for '%s'"):format(self.nextOutputId, output, self.name)
+	)
 
 	for _, v in ipairs(self) do
-		if IsValid(v) then
-			v.mapLogic = v.mapLogic or {}
-
-			local outputs = v.mapLogic[output] or {_length = 0}
-			v.mapLogic[output] = outputs
-
-			local prevCallback = outputs[self.nextOutputId]
-			outputs[self.nextOutputId] = callback
-
-			-- Don't call another AddOutput if we're just overriding a Lua function.
-			if not prevCallback then
-				if self.controller.statsOutputs then
-					self.controller.statsOutputs = self.controller.statsOutputs + 1
-				end
-
-				-- To support the generated output values (like Position), leave the 'parameter' empty.
-				v:Input(
-					"AddOutput",
-					self.controller,
-					self.controller,
-					("%s %s:__%s_%s_%s::%s:%s"):format(
-						output,
-						self.controller:GetName(),
-						v:EntIndex(),
-						output,
-						self.nextOutputId,
-						self.nextOutputDelay,
-						self.nextOutputRepetitions
-					)
-				)
-			end
+		if not IsValid(v) then
+			goto cont
 		end
+
+		v.mapLogic = v.mapLogic or {}
+
+		local outputs = v.mapLogic[output] or {_length = 1}
+		v.mapLogic[output] = outputs
+
+		local prevCallback = outputs[self.nextOutputId]
+		outputs[self.nextOutputId] = callback
+
+		-- Don't call another AddOutput if we're just overriding a Lua function.
+		if prevCallback then
+			goto cont
+		end
+
+		if self.controller.statsOutputs then
+			self.controller.statsOutputs = self.controller.statsOutputs + 1
+		end
+
+		-- To support the generated output values (like Position), leave the 'parameter' empty.
+		v:Input(
+			"AddOutput",
+			self.controller,
+			self.controller,
+			("%s %s:__%s_%s_%s::%s:%s"):format(
+				output,
+				self.controller:GetName(),
+				v:EntIndex(),
+				output,
+				self.nextOutputId,
+				self.nextOutputDelay,
+				self.nextOutputRepetitions
+			)
+		)
+
+		::cont::
 	end
 
-	self.nextOutputId = 0
+	self.nextOutputId = 1
 	self.nextOutputDelay = 0
 	self.nextOutputRepetitions = -1
 end
@@ -159,7 +173,7 @@ function ENT:GetMetaTarget(name)
 	-- it is impossible to allow these fields to be nil, otherwise meta will be called!
 	entities.name = name or ""
 	entities.controller = self
-	entities.nextOutputId = 0
+	entities.nextOutputId = 1
 	entities.nextOutputDelay = 0
 	entities.nextOutputRepetitions = -1
 	return setmetatable(entities, META_TARGET)
@@ -212,7 +226,7 @@ function ENT:InitializeLogic()
 end
 
 function ENT:Initialize()
-	-- Wait for second frame because OnRemove is executed in next frame.
+	-- Wait for the second frame because OnRemove is executed in next frame.
 	-- Also it allows you rename map entities in InitPostEntity.
 	local delay = engine.TickInterval() * 2
 	self:TimerSimple(delay, self.InitializeLogic)
@@ -303,6 +317,7 @@ local function AddOutputInternal(self, output, id, callback, delay, repetitions)
 	target[output] = callback
 end
 
+-- https://github.com/TIMONz1535/map_logic_controller/wiki/Entity.AddOutput-Entity.RemoveOutput-Entity.GetOutputs-methods
 function ENTITY:AddOutput(output, callback, delay, repetitions)
 	self.mapLogic = self.mapLogic or {}
 
