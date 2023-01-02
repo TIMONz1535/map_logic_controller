@@ -25,6 +25,27 @@ local function Init(controller, mapName)
 		return
 	end
 
+	-- make fence doors usable to everyone, because they controlled by Combine locks
+	local fence_doors = {
+		controller:GetMetaTarget("ration_northfence_door"),
+		controller:GetMetaTarget("ration_southfence_door"),
+		controller:GetMetaTarget("fencedoor1"),
+		controller:GetMetaTarget("fencedoor2"),
+		controller:GetMetaTarget("fencedoor3"),
+		controller:GetMetaTarget("fencedoor5"),
+		controller:GetMetaTarget("fencedoor6"),
+		controller:GetMetaTarget("fencedoor7"),
+		controller:GetMetaTarget("fencedoor8"),
+		controller:GetMetaTarget("fencedoor9"),
+		controller:GetMetaTarget("fencedoor10"),
+		controller:GetMetaTarget("fencedoor11"),
+		controller:GetMetaTarget("fencedoor12")
+	}
+	for _, v in ipairs(fence_doors) do
+		v:SetKeyValue("spawnflags", 288)
+		v:SetKeyValue("forceclosed", 0)
+	end
+
 	local ladder = ents.Create("func_useableladder")
 	ladder:SetPos(Vector(-1940, 7120, -120))
 	ladder:SetKeyValue("point0", "-1940 7120 -120")
