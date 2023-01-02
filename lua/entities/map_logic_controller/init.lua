@@ -63,12 +63,14 @@ META_TARGET.__newindex = function(self, output, callback)
 		v.mapLogic[output] = outputs
 
 		local prevCallback = outputs[self.nextOutputId]
-		outputs[self.nextOutputId] = callback
+		outputs[self.nextOutputId] = callback or false
 
-		-- Don't call another AddOutput if we're just overriding a Lua function.
-		if prevCallback then
+		-- Don't call another AddOutput if we're just overriding/removing a Lua function.
+		if prevCallback ~= nil then
 			goto cont
 		end
+
+		assert(callback, ("no output callback, can't add output '%s' for '%s'"):format(output, self.name))
 
 		if self.controller.statsOutputs then
 			self.controller.statsOutputs = self.controller.statsOutputs + 1
@@ -138,12 +140,6 @@ function ENT:AcceptInput(input, activator, caller, value)
 		local callback = outputs[id]
 		if callback then
 			callback(ent, activator, caller, value)
-		else
-			-- check only for MetaTargets that cannot be deleted
-			if id == 0 then
-				local info = ("entity '%s' (%s)"):format(ent:GetName(), ent:GetClass())
-				error(("no output callback '%s' in mapLogic table of %s"):format(output, info))
-			end
 		end
 
 		return true
