@@ -163,7 +163,7 @@ local function Init(controller, mapName)
 
 	-- make the func_door usable, otherwise it will be permanently opened by Combines
 	ration_button:SetKeyValue("spawnflags", 292)
-	-- fix wait delay of the toggled func_door
+	-- fix wait delay of the toggleable func_door
 	ration_button.OnClose = function(ent, activator)
 		ent:Fire("Lock")
 		LogCallback("[MapLogic] %s активировал оповещение Выдачи Рационов!")(ent, activator)
@@ -184,7 +184,6 @@ local function Init(controller, mapName)
 			end
 		)
 	end
-	ration_button[1]._usableFixed = true
 end
 
 hook.Add("OnMapLogicInitialized", "pb_v2_gamemode_specific", Init)
