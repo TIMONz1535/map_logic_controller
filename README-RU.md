@@ -1,6 +1,6 @@
 # Map Logic Controller - Lua Inputs/Outputs
 
-**Map Logic Controller** (сокращенно `MapLogic`) позволяет настраивать логику Инпутов/Оутпутов на карте из Lua.
+**Map Logic Controller** (`MapLogic`) позволяет настраивать логику Инпутов/Оутпутов на карте из Lua.
 Если вы не понимаете о чем речь, пожалуйста обратитесь к официальной документации [Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Inputs_and_Outputs).
 
 Контроллер представляет из себя серверную *point* энтить, которая дает возможность создавать оутпуты на стороне Lua для энтитей на карте.

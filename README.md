@@ -1,6 +1,6 @@
 # Map Logic Controller - Lua Inputs/Outputs
 
-**Map Logic Controller** (short `MapLogic`) allows you to setup the Inputs/Outputs logic on map from Lua.
+**Map Logic Controller** (`MapLogic`) allows you to setup the Inputs/Outputs logic on map from Lua.
 If you don't understand what I'm talking about, please refer to the official documentation [Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Inputs_and_Outputs).
 
 The controller is a server-side *point* entity, which makes it possible to create outputs in Lua scripts for map entities.
