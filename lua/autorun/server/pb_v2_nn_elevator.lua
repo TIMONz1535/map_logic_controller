@@ -1,26 +1,5 @@
 -- © 2022 PostBellum HL2 RP. All rights reserved.
 
-do
-	-- temporary fallback until gmod update
-	local muted = {}
-	hook.Add(
-		"AcceptInput",
-		"ClearAllOutputsFallback",
-		function(ent, input, activator, caller, value)
-			if IsValid(caller) and muted[caller:EntIndex()] and input ~= "InPass" then
-				return true
-			end
-		end
-	)
-
-	local ENTITY = FindMetaTable("Entity")
-	if not ENTITY.ClearAllOutputs then
-		function ENTITY:ClearAllOutputs()
-			muted[self:EntIndex()] = true
-		end
-	end
-end
-
 local buttonDelay = 3
 local buttonSound = "buttons/button24.wav"
 local buttonSoundFail = "buttons/button8.wav"
