@@ -24,6 +24,10 @@ local function Init(controller, mapName)
 		return
 	end
 
+	-- remove toggle flag on warehouse3 button
+	local warehouse3_button = controller:GetMetaTarget(ents.GetMapCreatedEntity(2055))
+	warehouse3_button:SetKeyValue("spawnflags", 1025)
+
 	-- remove touch flag on main dungeon door
 	local dungeon_door = controller:GetMetaTarget("danger_door")
 	dungeon_door:SetKeyValue("spawnflags", 0)

@@ -92,6 +92,25 @@ local function Init(controller, mapName)
 		return
 	end
 
+	do
+		-- auto-closing warehouse3 door if the Cremator has opened it
+		local isClosed = true
+		local warehouse3_door = controller:GetMetaTarget("warehouse_door3")
+		warehouse3_door.OnFullyClosed = function(ent, activator)
+			isClosed = true
+		end
+		warehouse3_door.OnFullyOpen = function(ent, activator)
+			isClosed = false
+		end
+		local warehouse3_button = controller:GetMetaTarget(ents.GetMapCreatedEntity(2055))
+		warehouse3_button.OnPressed = function(ent, activator)
+			if isClosed and activator:GetFaction() == FACTION_CREMATOR then
+				ent:EmitSound("buttons/button4.wav")
+				warehouse3_door:Fire("Close", nil, 5)
+			end
+		end
+	end
+
 	local terms_no = controller:GetMetaTarget("start_button_no")
 	terms_no.OnPressed = function(ent, activator)
 		if activator:IsPlayer() then

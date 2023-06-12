@@ -47,7 +47,7 @@ local function Init(controller, mapName)
 		v:ClearAllOutputs()
 	end
 
-	-- disable toggle flag
+	-- remove toggle flag on elevator button
 	elevator_button:SetKeyValue("spawnflags", 1025)
 	elevator_shield:Fire("Disable")
 	-- elevator is on second floor on spawn
