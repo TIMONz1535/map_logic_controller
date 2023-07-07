@@ -24,6 +24,25 @@ local function Init(controller, mapName)
 		return
 	end
 
+	do
+		-- make nexus toilet doors one-way
+		local nn_toilet_doors =
+			controller:GetMetaTarget(
+			{
+				ents.GetMapCreatedEntity(4300),
+				ents.GetMapCreatedEntity(4301),
+				ents.GetMapCreatedEntity(4302)
+			}
+		)
+		nn_toilet_doors:SetKeyValue("spawnflags", 274)
+		-- manually apply reverse dir flag
+		local ang1 = nn_toilet_doors[1]:GetInternalVariable("m_vecAngle1")
+		local moveAng = -nn_toilet_doors[1]:GetInternalVariable("m_vecMoveAng")
+		local moveDist = nn_toilet_doors[1]:GetInternalVariable("m_flMoveDistance")
+		nn_toilet_doors:SetSaveValue("m_vecMoveAng", moveAng)
+		nn_toilet_doors:SetSaveValue("m_vecAngle2", ang1 + moveAng * moveDist)
+	end
+
 	-- remove toggle flag on warehouse3 button
 	local warehouse3_button = controller:GetMetaTarget(ents.GetMapCreatedEntity(2055))
 	warehouse3_button:SetKeyValue("spawnflags", 1025)
@@ -33,15 +52,17 @@ local function Init(controller, mapName)
 	dungeon_door:SetKeyValue("spawnflags", 0)
 	dungeon_door:DisableCombineUse()
 
-	-- make block_d fridge door usable
-	local fridge_door = controller:GetMetaTarget("fridgedoor_00_1")
-	fridge_door:SetKeyValue("spawnflags", 274)
-	-- manually apply reverse dir flag
-	local ang1 = fridge_door[1]:GetInternalVariable("m_vecAngle1")
-	local moveAng = -fridge_door[1]:GetInternalVariable("m_vecMoveAng")
-	local moveDist = fridge_door[1]:GetInternalVariable("m_flMoveDistance")
-	fridge_door[1]:SetSaveValue("m_vecMoveAng", moveAng)
-	fridge_door[1]:SetSaveValue("m_vecAngle2", ang1 + moveAng * moveDist)
+	do
+		-- make block_d fridge door usable and one-way
+		local fridge_door = controller:GetMetaTarget("fridgedoor_00_1")
+		fridge_door:SetKeyValue("spawnflags", 274)
+		-- manually apply reverse dir flag
+		local ang1 = fridge_door[1]:GetInternalVariable("m_vecAngle1")
+		local moveAng = -fridge_door[1]:GetInternalVariable("m_vecMoveAng")
+		local moveDist = fridge_door[1]:GetInternalVariable("m_flMoveDistance")
+		fridge_door:SetSaveValue("m_vecMoveAng", moveAng)
+		fridge_door:SetSaveValue("m_vecAngle2", ang1 + moveAng * moveDist)
+	end
 
 	-- make warehouse6 door toggleable
 	local warehouse6_door = controller:GetMetaTarget("warehouse_door6")
