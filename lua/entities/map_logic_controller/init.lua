@@ -59,7 +59,7 @@ META_TARGET.__newindex = function(self, output, callback)
 
 		v.mapLogic = v.mapLogic or {}
 
-		local outputs = v.mapLogic[output] or {_length = 1}
+		local outputs = v.mapLogic[output] or {length = 1}
 		v.mapLogic[output] = outputs
 
 		local prevCallback = outputs[self.nextOutputId]
@@ -317,11 +317,11 @@ end
 function ENTITY:AddOutput(output, callback, delay, repetitions)
 	self.mapLogic = self.mapLogic or {}
 
-	local outputs = self.mapLogic[output] or {_length = 0}
+	local outputs = self.mapLogic[output] or {length = 0}
 	self.mapLogic[output] = outputs
 
-	local id = outputs._length + 1
-	outputs._length = id
+	local id = outputs.length + 1
+	outputs.length = id
 
 	AddOutputInternal(self, output, id, callback, delay, repetitions)
 	return id
@@ -343,7 +343,7 @@ function ENTITY:GetOutputs(output)
 	end
 
 	local data = {}
-	for i = 1, outputs._length do
+	for i = 1, outputs.length do
 		data[i] = outputs[i]
 	end
 	return data
